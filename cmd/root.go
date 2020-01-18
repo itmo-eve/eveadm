@@ -37,9 +37,9 @@ var Functions = map[string]ActionFunc {
 	"Reboot":nil,
 	"Start":nil,
 	"Stop":nil,
-	// Cobra-module related functions
-	"Init":nil,
 }
+// Cobra-module related functions
+var Init func(consoleCmd *cobra.Command)
 
 var cfgFile string
 var Plugin string
@@ -54,8 +54,20 @@ var rootCmd = &cobra.Command{
 	Long: `The eveadm tool allows you to interact with virtual machines
 and containers on a EVE system. It allows you to create, inspect, modify and
 delete virtual machines on the local system.`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("Inside %s PersistentPreRun %s with args: %v\n", cmd.Name(), args)
+		if Init != nil {
+			Init(consoleCmd)
+			Init(createCmd)
+			Init(deleteCmd)
+			Init(listCmd)
+			Init(rebootCmd)
+			Init(startCmd)
+			Init(stopCmd)
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Plugin:", Plugin)
+		cmd.Usage()
 	},
 }
 
@@ -112,12 +124,9 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	} else {
-		panic(err)
 	}
 
 	timeout = viper.GetString("timeout")
-	fmt.Println("Timeout:", timeout)
 	if len(timeout) > 0 {
 		minutes, err := strconv.Atoi(timeout)
 		Timeout = time.Duration(minutes) * time.Minute
@@ -125,16 +134,12 @@ func initConfig() {
 			fmt.Println(err)
 		}
 	}
-
-	fmt.Println(Timeout)
+	fmt.Println("Timeout:", Timeout)
 
 	Plugins_dir = viper.GetString("plugins_dir")
-	fmt.Println("Plugins dir:", Plugins_dir)
-
 	Plugin = viper.GetString("plugin")
-	fmt.Println("Plugin:", Plugin)
 	name := fmt.Sprintf("%s/%s.so", Plugins_dir, Plugin)
-	fmt.Println(name)
+	fmt.Println("Plugin:", name)
 
 	p, err := plugin.Open(name)
 	if err != nil {
@@ -142,6 +147,17 @@ func initConfig() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	fs, err := p.Lookup("Init")
+	if err == nil {
+		f, ok := fs.(func(consoleCmd *cobra.Command))
+		if ok {
+			Init = f
+		} else {
+			fmt.Println(ok)
+		}
+	}
+
 	for fn, _ := range Functions {
 		fs, err := p.Lookup(fn)
 		if err == nil {

@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"bytes"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 var plugin_name = "xen"
@@ -83,4 +85,25 @@ func Start(timeout time.Duration, args []string) {
 func Stop(timeout time.Duration, args []string) {
 	fmt.Println(plugin_name, "'stop' called", args)
 	run(timeout, args)
+}
+
+//func Init(cmd *cobra.Command) {
+func Init(cmd *cobra.Command) {
+	cmd.Short = fmt.Sprintf("Run shell command with arguments in '%s' action on '%s' mode", cmd.Name(), plugin_name)
+	cmd.Use = fmt.Sprintln(cmd.Name(), "[shell_command args]")
+	cmd.Long = fmt.Sprintf(`
+Run shell command with arguments in '%s' action on '%s' mode. For example:
+
+eveadm %s ps x
+`, cmd.Name(), plugin_name, cmd.Name())
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// cmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// cmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
