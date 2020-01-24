@@ -19,56 +19,30 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"plugin"
-	"time"
-	"strconv"
+        "time"
+        "strconv"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
-type ActionFunc func(timeout time.Duration, args []string)
-
-var Functions = map[string]ActionFunc {
-	"Console":nil,
-	"Create":nil,
-	"Delete":nil,
-	"List":nil,
-	"Reboot":nil,
-	"Start":nil,
-	"Stop":nil,
-}
-// Cobra-module related functions
-var Init func(consoleCmd *cobra.Command)
-
 var cfgFile string
-var Plugin string
-var Plugins_dir string
 var Timeout time.Duration
 var timeout string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "eveadm",
-	Short: "Manage EVE virtual machines and containers",
-	Long: `The eveadm tool allows you to interact with virtual machines
-and containers on a EVE system. It allows you to create, inspect, modify and
-delete virtual machines on the local system.`,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Inside %s PersistentPreRun %s with args: %v\n", cmd.Name(), args)
-		if Init != nil {
-			Init(consoleCmd)
-			Init(createCmd)
-			Init(deleteCmd)
-			Init(listCmd)
-			Init(rebootCmd)
-			Init(startCmd)
-			Init(stopCmd)
-		}
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Usage()
-	},
+	Short: "A brief description of your application",
+	Long: `A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -88,13 +62,9 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.eveadm.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&timeout, "timeout", "t", "", "Actions timeout in minutes")
-	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 
-	rootCmd.PersistentFlags().StringVarP(&Plugins_dir, "plugins_dir", "", "plugins", "Plugin modules directory")
-	viper.BindPFlag("plugins_dir", rootCmd.PersistentFlags().Lookup("plugins_dir"))
-	rootCmd.PersistentFlags().StringVarP(&Plugin, "plugin", "p", "", "Plugin module")
-	viper.BindPFlag("plugin", rootCmd.PersistentFlags().Lookup("plugin"))
+        rootCmd.PersistentFlags().StringVarP(&timeout, "timeout", "t", "", "Actions timeout in minutes")
+        viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -126,45 +96,13 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
-	timeout = viper.GetString("timeout")
-	if len(timeout) > 0 {
-		minutes, err := strconv.Atoi(timeout)
-		Timeout = time.Duration(minutes) * time.Minute
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	fmt.Println("Timeout:", Timeout)
-
-	Plugins_dir = viper.GetString("plugins_dir")
-	Plugin = viper.GetString("plugin")
-	name := fmt.Sprintf("%s/%s.so", Plugins_dir, Plugin)
-	fmt.Println("Plugin:", name)
-
-	p, err := plugin.Open(name)
-	if err != nil {
-		fmt.Println("Can't open", name)
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	fs, err := p.Lookup("Init")
-	if err == nil {
-		f, ok := fs.(func(consoleCmd *cobra.Command))
-		if ok {
-			Init = f
-		} else {
-			fmt.Println(ok)
-		}
-	}
-
-	for fn, _ := range Functions {
-		fs, err := p.Lookup(fn)
-		if err == nil {
-			f, ok := fs.(func(timeout time.Duration, args []string))
-			if ok {
-				Functions[fn] = f
-			}
-		}
-	}
+        timeout = viper.GetString("timeout")
+        if len(timeout) > 0 {
+                minutes, err := strconv.Atoi(timeout)
+                Timeout = time.Duration(minutes) * time.Minute
+                if err != nil {
+                        fmt.Println(err)
+                }
+        }
+        fmt.Println("Timeout:", Timeout)
 }
