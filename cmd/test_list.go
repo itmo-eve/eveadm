@@ -31,8 +31,9 @@ Run shell command with arguments in 'list' action on 'test' mode. For example:
 eveadm test list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("test list called")
-		run(Timeout, args)
+		envs = cmd.Flag("env").Value.String()
+		fmt.Println("test list called with envs:", envs)
+		rune(Timeout, args, envs)
 	},
 }
 

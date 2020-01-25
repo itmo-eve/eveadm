@@ -31,8 +31,9 @@ Run shell command with arguments in 'info' action on 'test' mode. For example:
 eveadm test info ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
-		run(Timeout, args)
+		envs = cmd.Flag("env").Value.String()
+		fmt.Println("info called with envs:", envs)
+		rune(Timeout, args, envs)
 	},
 }
 

@@ -30,8 +30,9 @@ Run shell command with arguments in 'delete' action on 'test' mode. For example:
 
 eveadm test delete ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("test delete called")
-		run(Timeout, args)
+		envs = cmd.Flag("env").Value.String()
+		fmt.Println("test delete called with envs:", envs)
+		rune(Timeout, args, envs)
 	},
 }
 
