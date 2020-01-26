@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +33,15 @@ eveadm rkt list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("rkt list called")
-		run(Timeout, args)
+		err, args, envs := rktListToCmd()
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		if envs != "" {
+			rune(Timeout, args, envs)
+		} else {
+			run(Timeout, args)
+		}
 	},
 }
 
