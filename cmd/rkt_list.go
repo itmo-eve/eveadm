@@ -22,6 +22,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type RKTContext struct {
+	dir string
+}
+
+var rktctx RKTContext
+
 // rktListCmd represents the list command
 var rktListCmd = &cobra.Command{
 	Use:   "list",
@@ -33,7 +39,7 @@ eveadm rkt list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("rkt list called")
-		err, args, envs := rktListToCmd()
+		err, args, envs := rktListToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -47,14 +53,5 @@ eveadm rkt list ps x
 
 func init() {
 	rktCmd.AddCommand(rktListCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rktListCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rktListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rktListCmd.PersistentFlags().StringVar(&rktctx.dir, "dir", "", "RKT root directory")
 }
