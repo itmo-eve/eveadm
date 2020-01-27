@@ -108,5 +108,7 @@ func initConfig() {
                         fmt.Println(err)
                 }
         }
-        fmt.Println("Timeout:", Timeout)
+	if verbose {
+		fmt.Println("Timeout:", Timeout)
+	}
 }

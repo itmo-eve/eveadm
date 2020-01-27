@@ -32,7 +32,9 @@ eveadm test list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
-		fmt.Println("test list called with envs:", envs)
+		if verbose {
+			fmt.Println("test list called with envs:", envs)
+		}
 		rune(Timeout, args, envs)
 	},
 }
