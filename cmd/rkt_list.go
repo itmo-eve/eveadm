@@ -17,8 +17,11 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
 )
 
 // rktListCmd represents the list command
@@ -31,21 +34,45 @@ Run shell command with arguments in 'list' action on 'rkt' mode. For example:
 eveadm rkt list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rkt list called")
-		run(Timeout, args)
+		isImage, err := cmd.Flags().GetBool("image")
+		if err != nil {
+			log.Fatalf("Error in get param image in %s", cmd.Name())
+		}
+		var envs string
+		if isImage {
+			err, args, envs = rktListImageToCmd(rktctx)
+		} else {
+			err, args, envs = rktListToCmd(rktctx)
+		}
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		err, cerr, stdout, stderr := rune(Timeout, args, envs)
+		if cerr != nil {
+			log.Fatalf("Context error in %s", cmd.Name())
+		}
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				waitStatus := exitError.Sys().(syscall.WaitStatus)
+				fmt.Printf("%s", stdout.String())
+				_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
+				if err != nil {
+					fmt.Printf("%s", stderr.String())
+				}
+				os.Exit(waitStatus.ExitStatus())
+			} else {
+				_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
+				if err != nil {
+					fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
+				}
+			}
+		}
+		fmt.Printf("%s", stdout.String())
 	},
 }
 
 func init() {
 	rktCmd.AddCommand(rktListCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rktListCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rktListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rktListCmd.Flags().BoolVar(&rktctx.noLegend, "no-legend", false, "Suppress legend")
+	rktListCmd.Flags().BoolP("image", "i", false, "Work with images")
 }
