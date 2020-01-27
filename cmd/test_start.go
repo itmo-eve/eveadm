@@ -30,7 +30,9 @@ var testStartCmd = &cobra.Command{
 eveadm test start ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
-		fmt.Println("test start called with envs:", envs)
+		if verbose {
+			fmt.Println("test start called with envs:", envs)
+		}
 		rune(Timeout, args, envs)
 	},
 }

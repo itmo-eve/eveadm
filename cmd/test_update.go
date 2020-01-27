@@ -30,7 +30,9 @@ var testUpdateCmd = &cobra.Command{
 eveadm test update ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
-		fmt.Println("test update called with envs:", envs)
+		if verbose {
+			fmt.Println("test update called with envs:", envs)
+		}
 		rune(Timeout, args, envs)
 	},
 }

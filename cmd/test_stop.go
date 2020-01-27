@@ -30,7 +30,9 @@ var testStopCmd = &cobra.Command{
 eveadm test stop ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
-		fmt.Println("test stop called with envs:", envs)
+		if verbose {
+			fmt.Println("test stop called with envs:", envs)
+		}
 		rune(Timeout, args, envs)
 	},
 }

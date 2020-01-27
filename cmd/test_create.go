@@ -31,7 +31,9 @@ Run shell command with arguments in 'create' action on 'test' mode. For example:
 eveadm test create ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
-		fmt.Println("test create called envs:", envs)
+		if verbose {
+			fmt.Println("test create called with envs:", envs)
+		}
 		rune(Timeout, args, envs)
 	},
 }
