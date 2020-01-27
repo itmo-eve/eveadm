@@ -37,6 +37,8 @@ eveadm rkt list
 
 func init() {
 	rootCmd.AddCommand(rktCmd)
+	rootCmd.PersistentFlags().StringVar(&rktctx.dir, "dir", "", "RKT data dir")
+	rootCmd.PersistentFlags().StringVar(&rktctx.insecureOptions, "insecure-options", "", "RKT insecure-options")
 
 	// Here you will define your flags and configuration settings.
 

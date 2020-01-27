@@ -25,16 +25,16 @@ import (
 )
 
 // rktListCmd represents the list command
-var rktListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Run shell command with arguments in 'list' action on 'rkt' mode",
+var rktListImageCmd = &cobra.Command{
+	Use:   "image",
+	Short: "Run shell command with arguments in 'list' action on 'rkt list' mode",
 	Long: `
-Run shell command with arguments in 'list' action on 'rkt' mode. For example:
+Run shell command with arguments in 'list' action on 'rkt list' mode. For example:
 
-eveadm rkt list ps x
+eveadm rkt list image
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		err, args, envs := rktListToCmd(rktctx)
+		err, args, envs := rktListImageToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -57,5 +57,6 @@ eveadm rkt list ps x
 }
 
 func init() {
-	rktCmd.AddCommand(rktListCmd)
+	rktListCmd.AddCommand(rktListImageCmd)
+	rktListImageCmd.Flags().StringVarP(&rktctx.fields, "fields", "", "", "Fields to return")
 }
