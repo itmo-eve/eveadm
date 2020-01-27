@@ -15,6 +15,7 @@ type RKTContext struct {
 	runPaused       bool
 	stage1Path      string
 	noOverlay       bool
+	stage1Type      string
 }
 
 var rktctx RKTContext

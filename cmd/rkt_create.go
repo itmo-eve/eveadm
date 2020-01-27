@@ -27,15 +27,27 @@ import (
 
 // rktCreateCmd represents the create command
 var rktCreateCmd = &cobra.Command{
-	Use:   "create",
+	Use:   "create url/uuid",
 	Short: "Run shell command with arguments in 'create' action on 'rkt' mode",
 	Long: `
 Run shell command with arguments in 'create' action on 'rkt' mode. For example:
 
 eveadm rkt create
-`,
+`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		err, args, envs := rktCreateToCmd(rktctx)
+		arg := args[0]
+		isImage, err := cmd.Flags().GetBool("image")
+		if err != nil {
+			log.Fatalf("Error in get param image in %s", cmd.Name())
+		}
+		var envs string
+		if isImage {
+			rktctx.imageUrl = arg
+			err, args, envs = rktCreateImageToCmd(rktctx)
+		} else {
+			rktctx.imageUUID = arg
+			err, args, envs = rktCreateToCmd(rktctx)
+		}
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -59,8 +71,8 @@ eveadm rkt create
 
 func init() {
 	rktCmd.AddCommand(rktCreateCmd)
+	rktCreateCmd.Flags().BoolP("image", "i", false, "Work with images")
 	rktCreateCmd.Flags().StringVar(&rktctx.uuidFile, "uuid-file-save", "", "File to save uuid")
-	rktCreateCmd.Flags().StringVar(&rktctx.imageUUID, "image-hash", "", "Hash of image")
 	rktCreateCmd.Flags().StringVar(&rktctx.xenCfgFilename, "xen-cfg-filename", "", "File with xen cfg for stage1")
 	rktCreateCmd.Flags().StringVar(&rktctx.stage1Path, "stage1-path", "/usr/sbin/stage1-xen.aci", "Stage1 path")
 
@@ -68,8 +80,4 @@ func init() {
 	rktCreateCmd.Flags().BoolVar(&rktctx.noOverlay, "no-overlay", false, "Run without overlay")
 
 	rktCreateCmd.Flags().BoolVar(&rktctx.runPaused, "paused", true, "Run paused")
-	err := rktCreateCmd.MarkFlagRequired("image-hash")
-	if err != nil {
-		log.Fatalf("Failed to mark required flag")
-	}
 }

@@ -34,7 +34,16 @@ Run shell command with arguments in 'list' action on 'rkt' mode. For example:
 eveadm rkt list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		err, args, envs := rktListToCmd(rktctx)
+		isImage, err := cmd.Flags().GetBool("image")
+		if err != nil {
+			log.Fatalf("Error in get param image in %s", cmd.Name())
+		}
+		var envs string
+		if isImage {
+			err, args, envs = rktListImageToCmd(rktctx)
+		} else {
+			err, args, envs = rktListToCmd(rktctx)
+		}
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -59,4 +68,5 @@ eveadm rkt list ps x
 func init() {
 	rktCmd.AddCommand(rktListCmd)
 	rktListCmd.Flags().BoolVar(&rktctx.noLegend, "no-legend", false, "Suppress legend")
+	rktListCmd.Flags().BoolP("image", "i", false, "Work with images")
 }

@@ -39,14 +39,5 @@ func init() {
 	rootCmd.AddCommand(rktCmd)
 	rootCmd.PersistentFlags().StringVar(&rktctx.dir, "dir", "", "RKT data dir")
 	rootCmd.PersistentFlags().StringVar(&rktctx.insecureOptions, "insecure-options", "image", "RKT insecure-options")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rktCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rktCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVar(&rktctx.stage1Type, "stage1-type", "xen", "Type of stage1 (xen or general)")
 }

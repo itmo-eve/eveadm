@@ -27,14 +27,27 @@ import (
 
 // rktDeleteCmd represents the delete command
 var rktDeleteCmd = &cobra.Command{
-	Use:   "delete",
+	Use:   "delete uuid",
 	Short: "Run shell command with arguments in 'delete' action on 'rkt' mode",
 	Long: `
 Run shell command with arguments in 'delete' action on 'rkt' mode. For example:
 
 eveadm rkt delete ps x`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		err, args, envs := rktDeleteToCmd(rktctx)
+		arg := args[0]
+		isImage, err := cmd.Flags().GetBool("image")
+		if err != nil {
+			log.Fatalf("Error in get param image in %s", cmd.Name())
+		}
+		var envs string
+		if isImage {
+			rktctx.imageUUID = arg
+			err, args, envs = rktDeleteImageToCmd(rktctx)
+		} else {
+			rktctx.containerUUID = arg
+			err, args, envs = rktDeleteToCmd(rktctx)
+		}
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -58,9 +71,5 @@ eveadm rkt delete ps x`,
 
 func init() {
 	rktCmd.AddCommand(rktDeleteCmd)
-	rktDeleteCmd.Flags().StringVar(&rktctx.containerUUID, "container-uuid", "", "UUID of container")
-	err := rktDeleteCmd.MarkFlagRequired("container-uuid")
-	if err != nil {
-		log.Fatalf("Failed to mark required flag")
-	}
+	rktDeleteCmd.Flags().BoolP("image", "i", false, "Work with images")
 }

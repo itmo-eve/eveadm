@@ -4,30 +4,51 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 curdir=$PWD
-home_dir=/tmp/pods
+home_dir=/tmp/pods_test
+rm -rf "$home_dir"
 mkdir "$home_dir"
 echo "$home_dir"
 echo ========================================
-IMAGE_HASH=$(./eveadm rkt create image --image-url=coreos.com/etcd:v2.0.0 --dir="$home_dir")
+echo "create image"
+echo ========================================
+IMAGE_HASH=$(./eveadm rkt create -i coreos.com/etcd:v2.0.0 --dir="$home_dir")
 echo "$IMAGE_HASH"
 echo ========================================
-./eveadm rkt list image --dir="$home_dir"
+echo "list image"
 echo ========================================
-./eveadm rkt info image --dir="$home_dir" --image-hash="$IMAGE_HASH"
+./eveadm rkt list -i --dir="$home_dir"
 echo ========================================
-systemd-run "$curdir"/eveadm rkt create --dir="$home_dir" --image-hash="$IMAGE_HASH" --no-overlay=true --stage1-path=""
+echo "info image"
+echo ========================================
+./eveadm rkt info -i --dir="$home_dir" "$IMAGE_HASH"
+echo ========================================
+echo "create container"
+echo ========================================
+systemd-run "$curdir"/eveadm rkt create --dir="$home_dir" "$IMAGE_HASH" --no-overlay=true --stage1-path=""
+echo ========================================
+echo "sleep 5"
 echo ========================================
 sleep 5
+echo ========================================
+echo "list container"
 echo ========================================
 CONTAINERS=$(./eveadm rkt list --dir="$home_dir" --no-legend=true)
 echo "$CONTAINERS"
 CONTAINER_UUID=$(echo "$CONTAINERS"|cut -f1)
 echo ========================================
-./eveadm rkt info --dir="$home_dir" --container-uuid="$CONTAINER_UUID"
+echo "info container"
 echo ========================================
-./eveadm rkt stop --dir="$home_dir" --container-uuid="$CONTAINER_UUID"
+./eveadm rkt info --dir="$home_dir" "$CONTAINER_UUID"
+echo ========================================
+echo "stop container"
+echo ========================================
+./eveadm rkt stop --dir="$home_dir" "$CONTAINER_UUID"
 sleep 5
 echo ========================================
-./eveadm rkt delete --dir="$home_dir" --container-uuid="$CONTAINER_UUID"
+echo "delete container"
 echo ========================================
-./eveadm rkt delete image --dir="$home_dir" --image-hash="$IMAGE_HASH"
+./eveadm rkt delete --dir="$home_dir" "$CONTAINER_UUID"
+echo ========================================
+echo "delete image"
+echo ========================================
+./eveadm rkt delete -i --dir="$home_dir" "$IMAGE_HASH"

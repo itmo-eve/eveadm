@@ -31,8 +31,9 @@ var rktStopCmd = &cobra.Command{
 	Short: "Run shell command with arguments in 'stop' action on 'rkt' mode",
 	Long: `Run shell command with arguments in 'stop' action on 'rkt' mode. For example:
 
-eveadm rkt stop`,
+eveadm rkt stop`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		rktctx.containerUUID = args[0]
 		err, args, envs := rktStopToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
@@ -57,9 +58,4 @@ eveadm rkt stop`,
 
 func init() {
 	rktCmd.AddCommand(rktStopCmd)
-	rktStopCmd.Flags().StringVar(&rktctx.containerUUID, "container-uuid", "", "UUID of container")
-	err := rktStopCmd.MarkFlagRequired("container-uuid")
-	if err != nil {
-		log.Fatalf("Failed to mark required flag")
-	}
 }
