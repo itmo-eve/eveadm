@@ -59,10 +59,16 @@ eveadm rkt delete ps x`,
 			if exitError, ok := err.(*exec.ExitError); ok {
 				waitStatus := exitError.Sys().(syscall.WaitStatus)
 				fmt.Printf("%s", stdout.String())
-				fmt.Printf("%s", stderr.String())
+				_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
+				if err != nil {
+					fmt.Printf("%s", stderr.String())
+				}
 				os.Exit(waitStatus.ExitStatus())
 			} else {
-				log.Fatalf("Execute error in %s", cmd.Name())
+				_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
+				if err != nil {
+					fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
+				}
 			}
 		}
 		fmt.Printf("%s", stdout.String())

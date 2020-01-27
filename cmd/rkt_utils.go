@@ -173,3 +173,12 @@ func rktDeleteImageToCmd(ctx RKTContext) (err error, args []string, envs string)
 	err = nil
 	return
 }
+func rktStartToCmd(ctx RKTContext) (err error, args []string, envs string) {
+	if ctx.containerUUID == "" {
+		return errors.New("No container uuid in args"), nil, ""
+	}
+	args = []string{"xl", "unpause", ctx.containerUUID}
+	envs = ""
+	err = nil
+	return
+}

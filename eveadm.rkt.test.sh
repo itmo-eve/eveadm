@@ -30,6 +30,10 @@ echo "sleep 5"
 echo ========================================
 sleep 5
 echo ========================================
+echo "start container"
+echo ========================================
+./eveadm rkt start --dir="$home_dir" --stage1-type=common "$CONTAINER_UUID"
+echo ========================================
 echo "list container"
 echo ========================================
 CONTAINERS=$(./eveadm rkt list --dir="$home_dir" --no-legend=true)
