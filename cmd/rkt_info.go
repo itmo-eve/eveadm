@@ -17,6 +17,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -28,14 +32,36 @@ var rktInfoCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'info' action on 'rkt' mode. For example:
 
-eveadm rkt info ps x
+eveadm rkt info
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
-		run(Timeout, args)
+		err, args, envs := rktInfoToCmd(rktctx)
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		err, cerr, stdout, stderr := rune(Timeout, args, envs)
+		if cerr != nil {
+			log.Fatalf("Context error in %s", cmd.Name())
+		}
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				waitStatus := exitError.Sys().(syscall.WaitStatus)
+				fmt.Printf("%s", stdout.String())
+				fmt.Printf("%s", stderr.String())
+				os.Exit(waitStatus.ExitStatus())
+			} else {
+				log.Fatalf("Execute error in %s", cmd.Name())
+			}
+		}
+		fmt.Printf("%s", stdout.String())
 	},
 }
 
 func init() {
 	rktCmd.AddCommand(rktInfoCmd)
+	rktInfoCmd.Flags().StringVar(&rktctx.containerUUID, "container-uuid", "", "UUID of container")
+	err := rktInfoCmd.MarkFlagRequired("container-uuid")
+	if err != nil {
+		log.Fatalf("Failed to mark required flag")
+	}
 }

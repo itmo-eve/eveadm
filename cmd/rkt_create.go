@@ -17,6 +17,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -28,24 +32,44 @@ var rktCreateCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'create' action on 'rkt' mode. For example:
 
-eveadm rkt create ps x
+eveadm rkt create
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rkt create called")
-		run(Timeout, args)
+		err, args, envs := rktCreateToCmd(rktctx)
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		err, cerr, stdout, stderr := rune(Timeout, args, envs)
+		if cerr != nil {
+			log.Fatalf("Context error in %s", cmd.Name())
+		}
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				waitStatus := exitError.Sys().(syscall.WaitStatus)
+				fmt.Printf("%s", stdout.String())
+				fmt.Printf("%s", stderr.String())
+				os.Exit(waitStatus.ExitStatus())
+			} else {
+				log.Fatalf("Execute error in %s", cmd.Name())
+			}
+		}
+		fmt.Printf("%s", stdout.String())
 	},
 }
 
 func init() {
 	rktCmd.AddCommand(rktCreateCmd)
+	rktCreateCmd.Flags().StringVar(&rktctx.uuidFile, "uuid-file-save", "", "File to save uuid")
+	rktCreateCmd.Flags().StringVar(&rktctx.imageUUID, "image-hash", "", "Hash of image")
+	rktCreateCmd.Flags().StringVar(&rktctx.xenCfgFilename, "xen-cfg-filename", "", "File with xen cfg for stage1")
+	rktCreateCmd.Flags().StringVar(&rktctx.stage1Path, "stage1-path", "/usr/sbin/stage1-xen.aci", "Stage1 path")
 
-	// Here you will define your flags and configuration settings.
+	//Workaround to start in Ubuntu
+	rktCreateCmd.Flags().BoolVar(&rktctx.noOverlay, "no-overlay", false, "Run without overlay")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rktCreateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rktCreateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rktCreateCmd.Flags().BoolVar(&rktctx.runPaused, "paused", true, "Run paused")
+	err := rktCreateCmd.MarkFlagRequired("image-hash")
+	if err != nil {
+		log.Fatalf("Failed to mark required flag")
+	}
 }

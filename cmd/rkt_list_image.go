@@ -58,5 +58,6 @@ eveadm rkt list image
 
 func init() {
 	rktListCmd.AddCommand(rktListImageCmd)
-	rktListImageCmd.Flags().StringVarP(&rktctx.fields, "fields", "", "", "Fields to return")
+	rktListImageCmd.Flags().StringVar(&rktctx.fields, "fields", "", "Fields to return")
+	rktListImageCmd.Flags().BoolVar(&rktctx.noLegend, "no-legend", false, "Suppress legend")
 }

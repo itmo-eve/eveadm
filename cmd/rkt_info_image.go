@@ -34,9 +34,6 @@ Run shell command with arguments in 'list' action on 'rkt info' mode. For exampl
 eveadm rkt info image
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if args != nil {
-			rktctx.uuid = args[0]
-		}
 		err, args, envs := rktInfoImageToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
@@ -61,4 +58,9 @@ eveadm rkt info image
 
 func init() {
 	rktInfoCmd.AddCommand(rktInfoImageCmd)
+	rktInfoImageCmd.Flags().StringVar(&rktctx.imageUUID, "image-hash", "", "UUID of image")
+	err := rktInfoImageCmd.MarkFlagRequired("image-hash")
+	if err != nil {
+		log.Fatalf("Failed to mark required flag")
+	}
 }

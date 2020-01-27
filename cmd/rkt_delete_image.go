@@ -25,16 +25,16 @@ import (
 )
 
 // rktListCmd represents the list command
-var rktListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Run shell command with arguments in 'list' action on 'rkt' mode",
+var rktDeleteImageCmd = &cobra.Command{
+	Use:   "image",
+	Short: "Run shell command with arguments in 'image' action on 'rkt delete' mode",
 	Long: `
-Run shell command with arguments in 'list' action on 'rkt' mode. For example:
+Run shell command with arguments in 'image' action on 'rkt delete' mode. For example:
 
-eveadm rkt list ps x
+eveadm rkt delete image
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		err, args, envs := rktListToCmd(rktctx)
+		err, args, envs := rktDeleteImageToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
@@ -57,6 +57,6 @@ eveadm rkt list ps x
 }
 
 func init() {
-	rktCmd.AddCommand(rktListCmd)
-	rktListCmd.Flags().BoolVar(&rktctx.noLegend, "no-legend", false, "Suppress legend")
+	rktDeleteCmd.AddCommand(rktDeleteImageCmd)
+	rktDeleteImageCmd.Flags().StringVar(&rktctx.imageUUID, "image-hash", "", "Hash of image")
 }
