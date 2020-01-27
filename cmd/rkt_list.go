@@ -17,16 +17,12 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
 )
-
-type RKTContext struct {
-	dir string
-}
-
-var rktctx RKTContext
 
 // rktListCmd represents the list command
 var rktListCmd = &cobra.Command{
@@ -38,13 +34,26 @@ Run shell command with arguments in 'list' action on 'rkt' mode. For example:
 eveadm rkt list ps x
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rkt list called")
 		err, args, envs := rktListToCmd(rktctx)
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
 		if envs != "" {
-			rune(Timeout, args, envs)
+			err, cerr, stdout, stderr := rune(Timeout, args, envs)
+			if cerr != nil {
+				log.Fatalf("Context error in %s", cmd.Name())
+			}
+			if err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok {
+					waitStatus := exitError.Sys().(syscall.WaitStatus)
+					log.Printf("%s", stdout.String())
+					log.Printf("%s", stderr.String())
+					os.Exit(waitStatus.ExitStatus())
+				} else {
+					log.Fatalf("Execute error in %s", cmd.Name())
+				}
+			}
+			fmt.Printf("%s", stdout.String())
 		} else {
 			run(Timeout, args)
 		}
