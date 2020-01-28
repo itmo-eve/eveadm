@@ -17,35 +17,65 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
 
 // rktInfoCmd represents the info command
 var rktInfoCmd = &cobra.Command{
-	Use:   "info",
+	Use:   "info uuid",
 	Short: "Run shell command with arguments in 'info' action on 'rkt' mode",
 	Long: `
 Run shell command with arguments in 'info' action on 'rkt' mode. For example:
 
-eveadm rkt info ps x
-`,
+eveadm rkt info
+`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
-		run(Timeout, args)
+		uuid := args[0]
+		isImage, err := cmd.Flags().GetBool("image")
+		if err != nil {
+			log.Fatalf("Error in get param image in %s", cmd.Name())
+		}
+		var envs string
+		if isImage {
+			rktctx.imageUUID = uuid
+			err, args, envs = rktInfoImageToCmd(rktctx)
+		} else {
+			rktctx.containerUUID = uuid
+			err, args, envs = rktInfoToCmd(rktctx)
+		}
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		err, cerr, stdout, stderr := rune(Timeout, args, envs)
+		if cerr != nil {
+			log.Fatalf("Context error in %s", cmd.Name())
+		}
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				waitStatus := exitError.Sys().(syscall.WaitStatus)
+				fmt.Printf("%s", stdout.String())
+				_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
+				if err != nil {
+					fmt.Printf("%s", stderr.String())
+				}
+				os.Exit(waitStatus.ExitStatus())
+			} else {
+				_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
+				if err != nil {
+					fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
+				}
+			}
+		}
+		fmt.Printf("%s", stdout.String())
 	},
 }
 
 func init() {
 	rktCmd.AddCommand(rktInfoCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rktInfoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rktInfoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rktInfoCmd.Flags().BoolP("image", "i", false, "Work with images")
 }

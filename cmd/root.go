@@ -29,6 +29,7 @@ import (
 var cfgFile string
 var Timeout time.Duration
 var timeout string
+var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -66,6 +67,8 @@ func init() {
         rootCmd.PersistentFlags().StringVarP(&timeout, "timeout", "t", "", "Actions timeout in minutes")
         viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose execution")
+        viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
@@ -96,6 +99,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+        verbose = viper.GetBool("verbose")
         timeout = viper.GetString("timeout")
         if len(timeout) > 0 {
                 minutes, err := strconv.Atoi(timeout)
@@ -104,5 +108,7 @@ func initConfig() {
                         fmt.Println(err)
                 }
         }
-        fmt.Println("Timeout:", Timeout)
+	if verbose {
+		fmt.Println("Timeout:", Timeout)
+	}
 }
