@@ -15,6 +15,9 @@ import (
 var tests = map[string][]string {
 	"tests/help": []string {"help"},
 	"tests/help_test": []string {"help", "test"},
+	"tests/help_test_create": []string {"help", "test", "create"},
+        "tests/test_create-h": []string {"test", "create", "-h"},
+
 }
 
 func executeCommand(root *cobra.Command, args ...string) (output string, err error) {
