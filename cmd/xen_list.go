@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -28,24 +28,17 @@ var xenListCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'list' action on 'xen' mode. For example:
 
-eveadm xen list ps x
+eveadm xen list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("xen list called")
-		run(Timeout, args)
+		err, args, envs := xenctx.xenListToCmd()
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		xenctx.xenRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
 func init() {
 	xenCmd.AddCommand(xenListCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// xenListCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// xenListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

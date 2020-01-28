@@ -16,13 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"syscall"
-
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // rktInfoCmd represents the info command
@@ -32,7 +27,8 @@ var rktInfoCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'info' action on 'rkt' mode. For example:
 
-eveadm rkt info
+eveadm rkt info --image uuid
+eveadm rkt info uuid
 `, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		uuid := args[0]
@@ -43,39 +39,20 @@ eveadm rkt info
 		var envs string
 		if isImage {
 			rktctx.imageUUID = uuid
-			err, args, envs = rktInfoImageToCmd(rktctx)
+			err, args, envs = rktctx.rktInfoImageToCmd()
 		} else {
 			rktctx.containerUUID = uuid
-			err, args, envs = rktInfoToCmd(rktctx)
+			err, args, envs = rktctx.rktInfoToCmd()
 		}
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
-		err, cerr, stdout, stderr := rune(Timeout, args, envs)
-		if cerr != nil {
-			log.Fatalf("Context error in %s", cmd.Name())
-		}
-		if err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				waitStatus := exitError.Sys().(syscall.WaitStatus)
-				fmt.Printf("%s", stdout.String())
-				_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
-				if err != nil {
-					fmt.Printf("%s", stderr.String())
-				}
-				os.Exit(waitStatus.ExitStatus())
-			} else {
-				_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
-				if err != nil {
-					fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
-				}
-			}
-		}
-		fmt.Printf("%s", stdout.String())
+		rktctx.rktRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
 func init() {
 	rktCmd.AddCommand(rktInfoCmd)
 	rktInfoCmd.Flags().BoolP("image", "i", false, "Work with images")
+	rktInfoCmd.Flags().StringVar(&rktctx.format, "format", "json", "Format of output")
 }

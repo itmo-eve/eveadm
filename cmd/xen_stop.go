@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -27,23 +27,19 @@ var xenStopCmd = &cobra.Command{
 	Short: "Run shell command with arguments in 'stop' action on 'xen' mode",
 	Long: `Run shell command with arguments in 'stop' action on 'xen' mode. For example:
 
-eveadm xen stop ps x`,
+eveadm xen stop uuid`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("xen stop called")
-		run(Timeout, args)
+		arg := args[0]
+		xenctx.containerUUID = arg
+		err, args, envs := xenctx.xenStopToCmd()
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		xenctx.xenRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
 func init() {
 	xenCmd.AddCommand(xenStopCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// xenStopCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// xenStopCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
