@@ -27,23 +27,12 @@ var xenUpdateCmd = &cobra.Command{
 	Short: "Run shell command with arguments in 'update' action on 'xen' mode",
 	Long: `Run shell command with arguments in 'update' action on 'xen' mode. For example:
 
-eveadm xen update ps x`,
+eveadm xen update`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("xen update called")
-		run(Timeout, args)
+		fmt.Println("Not implemented now")
 	},
 }
 
 func init() {
 	xenCmd.AddCommand(xenUpdateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// xenUpdateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// xenUpdateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

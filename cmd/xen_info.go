@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -28,24 +28,29 @@ var xenInfoCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'info' action on 'xen' mode. For example:
 
-eveadm xen info ps x
+eveadm xen info uuid
+eveadm xen info --domname name
 `,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
-		run(Timeout, args)
+		isDomid, err := cmd.Flags().GetBool("domname")
+		arg := args[0]
+		var envs string
+		if isDomid {
+			xenctx.containerName = arg
+			err, args, envs = xenctx.xenInfoDomidToCmd()
+		} else {
+			xenctx.containerUUID = arg
+			err, args, envs = xenctx.xenInfoToCmd()
+		}
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		xenctx.xenRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
 func init() {
 	xenCmd.AddCommand(xenInfoCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// xenInfoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// xenInfoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rktListCmd.Flags().Bool("domname", false, "Work with name")
 }

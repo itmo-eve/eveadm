@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -28,24 +28,23 @@ var xenCreateCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'create' action on 'xen' mode. For example:
 
-eveadm xen create ps x
+eveadm xen create --xen-cfg-filename=dom.cfg
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("xen create called")
-		run(Timeout, args)
+		err, args, envs := xenctx.xenCreateToCmd()
+		if err != nil {
+			log.Fatalf("Error in obtain params in %s", cmd.Name())
+		}
+		xenctx.xenRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
 func init() {
 	xenCmd.AddCommand(xenCreateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// xenCreateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// xenCreateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	xenCreateCmd.Flags().StringVar(&xenctx.xenCfgFilename, "xen-cfg-filename", "", "File with xen cfg for stage1")
+	xenCreateCmd.Flags().BoolVar(&xenctx.runPaused, "paused", true, "Run paused")
+	err := cobra.MarkFlagRequired(xenCreateCmd.Flags(), "xen-cfg-filename")
+	if err != nil {
+		log.Fatalf("Error in getting required flags: %s", err.Error())
+	}
 }
