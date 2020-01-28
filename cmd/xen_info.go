@@ -52,5 +52,5 @@ eveadm xen info --domname name
 
 func init() {
 	xenCmd.AddCommand(xenInfoCmd)
-	rktListCmd.Flags().Bool("domname", false, "Work with name")
+	xenInfoCmd.Flags().Bool("domname", false, "Work with name")
 }

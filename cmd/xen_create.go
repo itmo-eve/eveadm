@@ -42,7 +42,7 @@ eveadm xen create --xen-cfg-filename=dom.cfg
 func init() {
 	xenCmd.AddCommand(xenCreateCmd)
 	xenCreateCmd.Flags().StringVar(&xenctx.xenCfgFilename, "xen-cfg-filename", "", "File with xen cfg for stage1")
-	xenCreateCmd.Flags().BoolVar(&xenctx.runPaused, "paused", true, "Run paused")
+	xenCreateCmd.Flags().BoolVarP(&xenctx.runPaused, "paused", "p", true, "Run paused")
 	err := cobra.MarkFlagRequired(xenCreateCmd.Flags(), "xen-cfg-filename")
 	if err != nil {
 		log.Fatalf("Error in getting required flags: %s", err.Error())

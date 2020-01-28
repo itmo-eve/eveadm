@@ -54,7 +54,7 @@ func (ctx XENContext) xenCreateToCmd() (err error, args []string, envs string) {
 	if ctx.xenCfgFilename == "" {
 		return errors.New("No xenCfgFilename in args"), nil, ""
 	}
-	args = []string{"rkt", "run", ctx.xenCfgFilename}
+	args = []string{"xl", "create", ctx.xenCfgFilename}
 	if ctx.runPaused {
 		args = append(args, "-p")
 	}
