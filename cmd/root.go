@@ -30,6 +30,7 @@ var cfgFile string
 var Timeout time.Duration
 var timeout string
 var verbose bool
+var RootCmd *cobra.Command
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -72,6 +73,8 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	RootCmd = rootCmd
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -112,3 +115,4 @@ func initConfig() {
 		fmt.Println("Timeout:", Timeout)
 	}
 }
+

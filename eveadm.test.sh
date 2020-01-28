@@ -4,7 +4,7 @@ echo ./eveadm help
 ./eveadm help
 echo ========================================
 
-for m in rkt test xen 
+for m in test xen 
 do
 	echo ./eveadm help $m
 	./eveadm help $m
@@ -23,25 +23,28 @@ do
 		echo ./eveadm $m $a ps x 
                 ./eveadm $m $a ps x
 		echo ========================================
-		echo ./eveadm $m $a ls
-                ./eveadm $m $a ls
+                echo ./eveadm -v $m $a ps x 
+                ./eveadm -v $m $a ps x
+                echo ========================================
+		echo ./eveadm -v $m $a ls
+                ./eveadm -v $m $a ls
 		echo ========================================
-		echo ./eveadm $m $a ls qwerty
-                ./eveadm $m $a ls qwerty
+		echo ./eveadm -v $m $a ls qwerty
+                ./eveadm -v $m $a ls qwerty
 		echo ========================================
-		echo time ./eveadm $m $a sleep 100
-                time ./eveadm $m $a sleep 100
+		echo time ./eveadm -v $m $a sleep 100
+                time ./eveadm -v $m $a sleep 100
 		echo ========================================
-		echo time ./eveadm $m $a sleep 100 -t 1
-                time ./eveadm $m $a sleep 100 -t 1
+		echo time ./eveadm -v $m $a sleep 100 -t 1
+                time ./eveadm -v $m $a sleep 100 -t 1
 		echo ========================================
 		if [ "$m" = test ]
 		then 
-			echo ./eveadm $m $a date
-        	        ./eveadm $m $a date
+			echo ./eveadm -v $m $a date
+        	        ./eveadm -v $m $a date
 			echo ========================================
-			echo ./eveadm $m $a date --env "LANG=zh_CN.UTF-8 TZ=Asia/Shanghai"
-			./eveadm $m $a date --env "LANG=zh_CN.UTF-8 TZ=Asia/Shanghai"
+			echo ./eveadm -v $m $a date --env "LANG=zh_CN.UTF-8 TZ=Asia/Shanghai"
+			./eveadm -v $m $a date --env "LANG=zh_CN.UTF-8 TZ=Asia/Shanghai"
 		fi
 	done
 done
