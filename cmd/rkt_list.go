@@ -27,7 +27,8 @@ var rktListCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'list' action on 'rkt' mode. For example:
 
-eveadm rkt list ps x
+eveadm rkt list --image
+eveadm rkt list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		isImage, err := cmd.Flags().GetBool("image")

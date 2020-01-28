@@ -26,7 +26,8 @@ var rktStopCmd = &cobra.Command{
 	Short: "Run shell command with arguments in 'stop' action on 'rkt' mode",
 	Long: `Run shell command with arguments in 'stop' action on 'rkt' mode. For example:
 
-eveadm rkt stop`, Args: cobra.ExactArgs(1),
+eveadm rkt stop uuid
+`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		rktctx.containerUUID = args[0]
 		force, err := cmd.Flags().GetBool("force")

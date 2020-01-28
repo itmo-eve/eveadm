@@ -27,7 +27,8 @@ var rktInfoCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'info' action on 'rkt' mode. For example:
 
-eveadm rkt info
+eveadm rkt info --image uuid
+eveadm rkt info uuid
 `, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		uuid := args[0]

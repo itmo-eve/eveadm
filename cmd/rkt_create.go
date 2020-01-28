@@ -27,7 +27,8 @@ var rktCreateCmd = &cobra.Command{
 	Long: `
 Run shell command with arguments in 'create' action on 'rkt' mode. For example:
 
-eveadm rkt create
+eveadm rkt create --image url
+eveadm rkt create image_uuid
 `, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		arg := args[0]

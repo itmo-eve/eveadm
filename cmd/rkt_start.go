@@ -27,7 +27,8 @@ var rktStartCmd = &cobra.Command{
 	Short: "Run shell command with arguments in 'start' action on 'rkt' mode",
 	Long: `Run shell command with arguments in 'start' action on 'rkt' mode. For example:
 
-eveadm rkt start`, Args: cobra.ExactArgs(1),
+eveadm rkt start uuid
+`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		arg := args[0]
 		if rktctx.stage1Type == "xen" {
