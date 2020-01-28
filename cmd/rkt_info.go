@@ -53,4 +53,5 @@ eveadm rkt info
 func init() {
 	rktCmd.AddCommand(rktInfoCmd)
 	rktInfoCmd.Flags().BoolP("image", "i", false, "Work with images")
+	rktInfoCmd.Flags().StringVar(&rktctx.format, "format", "json", "Format of output")
 }

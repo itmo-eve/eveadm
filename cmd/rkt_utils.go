@@ -25,6 +25,7 @@ type RKTContext struct {
 	noOverlay       bool
 	stage1Type      string
 	force           bool
+	format          string
 }
 
 var rktctx RKTContext
@@ -174,6 +175,9 @@ func (ctx RKTContext) rktInfoToCmd() (err error, args []string, envs string) {
 	}
 	if ctx.insecureOptions != "" {
 		args = append(args, "--insecure-options="+ctx.insecureOptions)
+	}
+	if ctx.format != "" {
+		args = append(args, "--format="+ctx.format)
 	}
 	envs = ""
 	err = nil
