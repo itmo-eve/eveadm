@@ -87,7 +87,7 @@ func (ctx XENContext) xenInfoDomidToCmd() (err error, args []string, envs string
 	if ctx.containerName == "" {
 		return errors.New("No container name in args"), nil, ""
 	}
-	args = []string{"xl", "domid", "-l", ctx.containerName}
+	args = []string{"xl", "domid", ctx.containerName}
 	envs = ""
 	err = nil
 	return

@@ -8,19 +8,21 @@ rm -rf "$home_dir"
 mkdir "$home_dir"
 echo "$home_dir"
 name="testxen"
+kernel=$(ls -t /boot/vmlinuz* | head -1)
 echo ========================================
 echo "download image and create config"
 echo ========================================
 wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img -O "$home_dir"/cirros.qcow2
 cat << EOF > "$home_dir"/config.cfg
 name = "$name"
-kernel = "/boot/vmlinuz"
-extra = "root=/dev/xvda1"
+bootloader = "pygrub"
+extra = "console=hvc0 root=/dev/xvda1"
 memory = 128
 vcpus = 1
-vif = [ '' ]
-disk = [ '$home_dir/cirros.qcow2,xvda,rw' ]
+vif = [ 'bridge=xenbr0' ]
+disk = [ '$home_dir/cirros.qcow2,qcow2,xvda,rw' ]
 EOF
+brctl show|grep xenbr0||brctl addbr xenbr0
 echo ========================================
 echo "create vm"
 echo ========================================
