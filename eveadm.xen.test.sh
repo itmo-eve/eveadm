@@ -8,7 +8,6 @@ rm -rf "$home_dir"
 mkdir "$home_dir"
 echo "$home_dir"
 name="testxen"
-kernel=$(ls -t /boot/vmlinuz* | head -1)
 echo ========================================
 echo "download image and create config"
 echo ========================================
