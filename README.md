@@ -4,6 +4,9 @@ Manage EVE virtual machines and containers
 ## Building
 ```make```
 
+## Testing
+```make test```
+
 ## Running
 Supports the command hierarchy described by the command:
 ```./eveadm help```
