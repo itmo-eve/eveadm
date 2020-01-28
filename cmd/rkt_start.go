@@ -19,9 +19,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
-	"os/exec"
-	"syscall"
 )
 
 // rktStartCmd represents the start command
@@ -35,31 +32,11 @@ eveadm rkt start`, Args: cobra.ExactArgs(1),
 		arg := args[0]
 		if rktctx.stage1Type == "xen" {
 			rktctx.containerUUID = arg
-			err, args, envs := rktStartToCmd(rktctx)
+			err, args, envs := rktctx.rktStartToCmd()
 			if err != nil {
 				log.Fatalf("Error in obtain params in %s", cmd.Name())
 			}
-			err, cerr, stdout, stderr := rune(Timeout, args, envs)
-			if cerr != nil {
-				log.Fatalf("Context error in %s", cmd.Name())
-			}
-			if err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok {
-					waitStatus := exitError.Sys().(syscall.WaitStatus)
-					fmt.Printf("%s", stdout.String())
-					_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
-					if err != nil {
-						fmt.Printf("%s", stderr.String())
-					}
-					os.Exit(waitStatus.ExitStatus())
-				} else {
-					_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
-					if err != nil {
-						fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
-					}
-				}
-			}
-			fmt.Printf("%s", stdout.String())
+			rktctx.rktRuneWrapper(Timeout, args, envs, cmd.Name())
 		} else {
 			fmt.Println("Not implemented for common type of stage1")
 		}

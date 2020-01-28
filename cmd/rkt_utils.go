@@ -1,6 +1,14 @@
 package cmd
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"syscall"
+	"time"
+)
 
 type RKTContext struct {
 	dir             string
@@ -20,7 +28,31 @@ type RKTContext struct {
 
 var rktctx RKTContext
 
-func rktListToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktRuneWrapper(timeout time.Duration, args []string, env string, cmdName string) {
+	err, cerr, stdout, stderr := rune(Timeout, args, envs)
+	if cerr != nil {
+		log.Fatalf("Context error in %s", cmdName)
+	}
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			fmt.Printf("%s", stdout.String())
+			_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
+			if err != nil {
+				fmt.Printf("%s", stderr.String())
+			}
+			os.Exit(waitStatus.ExitStatus())
+		} else {
+			_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmdName, err.Error())
+			if err != nil {
+				fmt.Printf("Execute error in %s: %s\n", cmdName, err.Error())
+			}
+		}
+	}
+	fmt.Printf("%s", stdout.String())
+}
+
+func (ctx RKTContext) rktListToCmd() (err error, args []string, envs string) {
 	args = []string{"rkt", "list"}
 	if ctx.dir != "" {
 		args = append(args, "--dir="+ctx.dir)
@@ -36,7 +68,7 @@ func rktListToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	return
 }
 
-func rktListImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktListImageToCmd() (err error, args []string, envs string) {
 	args = []string{"rkt", "image", "list"}
 	if ctx.dir != "" {
 		args = append(args, "--dir="+ctx.dir)
@@ -55,7 +87,7 @@ func rktListImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	return
 }
 
-func rktInfoImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktInfoImageToCmd() (err error, args []string, envs string) {
 	if ctx.imageUUID == "" {
 		return errors.New("No imageUUID in args"), nil, ""
 	}
@@ -71,7 +103,7 @@ func rktInfoImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	err = nil
 	return
 }
-func rktCreateToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktCreateToCmd() (err error, args []string, envs string) {
 	if ctx.imageUUID == "" {
 		return errors.New("No image uuid in args"), nil, ""
 	}
@@ -97,7 +129,7 @@ func rktCreateToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	err = nil
 	return
 }
-func rktCreateImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktCreateImageToCmd() (err error, args []string, envs string) {
 	if ctx.imageUrl == "" {
 		return errors.New("No image url in args"), nil, ""
 	}
@@ -113,7 +145,7 @@ func rktCreateImageToCmd(ctx RKTContext) (err error, args []string, envs string)
 	err = nil
 	return
 }
-func rktStopToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktStopToCmd() (err error, args []string, envs string) {
 	if ctx.containerUUID == "" {
 		return errors.New("No container uuid in args"), nil, ""
 	}
@@ -128,7 +160,7 @@ func rktStopToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	err = nil
 	return
 }
-func rktInfoToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktInfoToCmd() (err error, args []string, envs string) {
 	if ctx.containerUUID == "" {
 		return errors.New("No container uuid in args"), nil, ""
 	}
@@ -143,7 +175,7 @@ func rktInfoToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	err = nil
 	return
 }
-func rktDeleteToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktDeleteToCmd() (err error, args []string, envs string) {
 	if ctx.containerUUID == "" {
 		return errors.New("No container uuid in args"), nil, ""
 	}
@@ -158,7 +190,7 @@ func rktDeleteToCmd(ctx RKTContext) (err error, args []string, envs string) {
 	err = nil
 	return
 }
-func rktDeleteImageToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktDeleteImageToCmd() (err error, args []string, envs string) {
 	if ctx.imageUUID == "" {
 		return errors.New("No image uuid in args"), nil, ""
 	}
@@ -173,7 +205,7 @@ func rktDeleteImageToCmd(ctx RKTContext) (err error, args []string, envs string)
 	err = nil
 	return
 }
-func rktStartToCmd(ctx RKTContext) (err error, args []string, envs string) {
+func (ctx RKTContext) rktStartToCmd() (err error, args []string, envs string) {
 	if ctx.containerUUID == "" {
 		return errors.New("No container uuid in args"), nil, ""
 	}
