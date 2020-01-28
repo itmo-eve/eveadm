@@ -29,6 +29,11 @@ var rktStopCmd = &cobra.Command{
 eveadm rkt stop`, Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		rktctx.containerUUID = args[0]
+		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			log.Fatalf("Error in get param force in %s", cmd.Name())
+		}
+		rktctx.force = force
 		err, args, envs := rktctx.rktStopToCmd()
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
@@ -39,4 +44,5 @@ eveadm rkt stop`, Args: cobra.ExactArgs(1),
 
 func init() {
 	rktCmd.AddCommand(rktStopCmd)
+	rktStopCmd.Flags().BoolP("force", "f", false, "Force stop")
 }
