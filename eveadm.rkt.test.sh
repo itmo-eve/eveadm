@@ -36,7 +36,10 @@ echo ========================================
 echo ========================================
 echo "list container"
 echo ========================================
+until [ "$CONTAINERS" ]
+do
 CONTAINERS=$(./eveadm rkt list --dir="$home_dir" --no-legend=true)
+done
 echo "$CONTAINERS"
 CONTAINER_UUID=$(echo "$CONTAINERS"|cut -f1)
 echo ========================================
