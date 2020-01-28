@@ -16,13 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"syscall"
-
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // rktCreateCmd represents the create command
@@ -43,35 +38,15 @@ eveadm rkt create
 		var envs string
 		if isImage {
 			rktctx.imageUrl = arg
-			err, args, envs = rktCreateImageToCmd(rktctx)
+			err, args, envs = rktctx.rktCreateImageToCmd()
 		} else {
 			rktctx.imageUUID = arg
-			err, args, envs = rktCreateToCmd(rktctx)
+			err, args, envs = rktctx.rktCreateToCmd()
 		}
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
-		err, cerr, stdout, stderr := rune(Timeout, args, envs)
-		if cerr != nil {
-			log.Fatalf("Context error in %s", cmd.Name())
-		}
-		if err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				waitStatus := exitError.Sys().(syscall.WaitStatus)
-				fmt.Printf("%s", stdout.String())
-				_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
-				if err != nil {
-					fmt.Printf("%s", stderr.String())
-				}
-				os.Exit(waitStatus.ExitStatus())
-			} else {
-				_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmd.Name(), err.Error())
-				if err != nil {
-					fmt.Printf("Execute error in %s: %s\n", cmd.Name(), err.Error())
-				}
-			}
-		}
-		fmt.Printf("%s", stdout.String())
+		rktctx.rktRuneWrapper(Timeout, args, envs, cmd.Name())
 	},
 }
 
