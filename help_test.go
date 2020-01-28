@@ -17,6 +17,8 @@ var tests = map[string][]string {
 	"tests/help_test": []string {"help", "test"},
 	"tests/help_test_create": []string {"help", "test", "create"},
         "tests/test_create-h": []string {"test", "create", "-h"},
+        "tests/help_test_delete": []string {"help", "test", "delete"},
+        "tests/test_delete-h": []string {"test", "delete", "-h"},
 
 }
 
