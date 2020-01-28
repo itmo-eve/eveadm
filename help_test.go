@@ -14,9 +14,13 @@ import (
 
 var tests = map[string][]string {
 	"tests/help": []string {"help"},
-	"tests/help_test": []string {"help", "test"},
+        "tests/h": []string {"-h"},
+        "tests/help_test": []string {"help", "test"},
+        "tests/test-h": []string {"test", "-h"},
 	"tests/help_test_create": []string {"help", "test", "create"},
         "tests/test_create-h": []string {"test", "create", "-h"},
+        "tests/help_test_delete": []string {"help", "test", "delete"},
+        "tests/test_delete-h": []string {"test", "delete", "-h"},
 
 }
 
