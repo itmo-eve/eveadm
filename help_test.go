@@ -21,7 +21,16 @@ var tests = map[string][]string {
         "tests/test_create-h": []string {"test", "create", "-h"},
         "tests/help_test_delete": []string {"help", "test", "delete"},
         "tests/test_delete-h": []string {"test", "delete", "-h"},
-
+        "tests/help_test_info": []string {"help", "test", "info"},
+        "tests/test_info-h": []string {"test", "info", "-h"},
+        "tests/help_test_list": []string {"help", "test", "list"},
+        "tests/test_list-h": []string {"test", "list", "-h"},
+        "tests/help_test_start": []string {"help", "test", "start"},
+        "tests/test_start-h": []string {"test", "start", "-h"},
+        "tests/help_test_stop": []string {"help", "test", "stop"},
+        "tests/test_stop-h": []string {"test", "stop", "-h"},
+        "tests/help_test_update": []string {"help", "test", "update"},
+        "tests/test_update-h": []string {"test", "update", "-h"},
 }
 
 func executeCommand(root *cobra.Command, args ...string) (output string, err error) {
