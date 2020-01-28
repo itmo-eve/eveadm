@@ -31,7 +31,7 @@ type RKTContext struct {
 var rktctx RKTContext
 
 func (ctx RKTContext) rktRuneWrapper(timeout time.Duration, args []string, env string, cmdName string) {
-	err, cerr, stdout, stderr := rune(Timeout, args, envs)
+	err, cerr, stdout, stderr := rune(timeout, args, env)
 	if cerr != nil {
 		log.Fatalf("Context error in %s", cmdName)
 	}
