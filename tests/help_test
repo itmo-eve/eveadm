@@ -21,8 +21,11 @@ Flags:
   -h, --help         help for test
 
 Global Flags:
-      --config string    config file (default is $HOME/.eveadm.yaml)
-  -t, --timeout string   Actions timeout in minutes
-  -v, --verbose          Verbose execution
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution
 
 Use "eveadm test [command] --help" for more information about a command.
