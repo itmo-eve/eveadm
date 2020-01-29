@@ -100,7 +100,7 @@ func check(e error) {
 
 func TestExecute (t *testing.T) {
 	for f, a := range tests {
-		fmt.Printf("args: %q file: %s\n", f, a)
+		fmt.Printf("args: %q file: %s\n", a, f)
 		dat, err := ioutil.ReadFile(f)
 		check(err)
 		tst := string(dat)
@@ -108,7 +108,7 @@ func TestExecute (t *testing.T) {
 		out, err := executeCommand(cmd.RootCmd, a...)
 		check(err)
 		res := strings.Compare(tst, out)
-		fmt.Println("res:", res)
+		//fmt.Println("res:", res)
 		if res != 0 {
 			t.Errorf("Command 'help' not passed")	
 		}
