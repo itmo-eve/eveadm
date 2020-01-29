@@ -1,0 +1,30 @@
+
+Execute actions on 'rkt' mode. For example:
+
+eveadm rkt list
+
+Usage:
+  eveadm rkt [flags]
+  eveadm rkt [command]
+
+Available Commands:
+  create      Run shell command with arguments in 'create' action on 'rkt' mode
+  delete      Run shell command with arguments in 'delete' action on 'rkt' mode
+  info        Run shell command with arguments in 'info' action on 'rkt' mode
+  list        Run shell command with arguments in 'list' action on 'rkt' mode
+  start       Run shell command with arguments in 'start' action on 'rkt' mode
+  stop        Run shell command with arguments in 'stop' action on 'rkt' mode
+  update      Run shell command with arguments in 'update' action on 'rkt' mode
+
+Flags:
+  -h, --help   help for rkt
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution
+
+Use "eveadm rkt [command] --help" for more information about a command.
