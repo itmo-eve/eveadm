@@ -1,0 +1,30 @@
+
+Execute actions on 'xen' mode. For example:
+
+eveadm xen list
+
+Usage:
+  eveadm xen [flags]
+  eveadm xen [command]
+
+Available Commands:
+  create      Run shell command with arguments in 'create' action on 'xen' mode
+  delete      Run shell command with arguments in 'delete' action on 'xen' mode
+  info        Run shell command with arguments in 'info' action on 'xen' mode
+  list        Run shell command with arguments in 'list' action on 'xen' mode
+  start       Run shell command with arguments in 'start' action on 'xen' mode
+  stop        Run shell command with arguments in 'stop' action on 'xen' mode
+  update      Run shell command with arguments in 'update' action on 'xen' mode
+
+Flags:
+  -h, --help   help for xen
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution
+
+Use "eveadm xen [command] --help" for more information about a command.
