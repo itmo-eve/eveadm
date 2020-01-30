@@ -31,7 +31,12 @@ Execute actions on 'test' mode. For example:
 eveadm test list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("test called")
+		envs = cmd.Flag("env").Value.String()
+		if verbose {
+			fmt.Println("test called with envs:", envs)
+		}
+		test = true
+		run(cmd, Timeout, args, envs)
 	},
 }
 

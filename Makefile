@@ -5,4 +5,4 @@ install: eveadm
 	go install github.com/itmo-eve/eveadm/
 
 test:
-	go test
+	LANG=C go test
