@@ -107,7 +107,6 @@ func run(command *cobra.Command, timeout time.Duration, args []string, env strin
 		}
 	}
 
-	fmt.Println("test:", test)
         if re != nil {
                 if exitError, ok := re.(*exec.ExitError); ok {
                         waitStatus := exitError.Sys().(syscall.WaitStatus)
