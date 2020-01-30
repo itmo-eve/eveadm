@@ -1,0 +1,20 @@
+
+Run shell command with arguments in 'info' action on 'xen' mode. For example:
+
+eveadm xen info uuid
+eveadm xen info --domname name
+
+Usage:
+  eveadm xen info [flags]
+
+Flags:
+      --domname   Work with name
+  -h, --help      help for info
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution

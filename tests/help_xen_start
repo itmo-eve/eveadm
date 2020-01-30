@@ -1,0 +1,17 @@
+Run shell command with arguments in 'start' action on 'xen' mode. For example:
+
+eveadm xen start uuid
+
+Usage:
+  eveadm xen start [flags]
+
+Flags:
+  -h, --help   help for start
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution

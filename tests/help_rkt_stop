@@ -1,0 +1,18 @@
+Run shell command with arguments in 'stop' action on 'rkt' mode. For example:
+
+eveadm rkt stop uuid
+
+Usage:
+  eveadm rkt stop [flags]
+
+Flags:
+  -f, --force   Force stop
+  -h, --help    help for stop
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution
