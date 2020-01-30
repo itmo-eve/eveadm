@@ -24,12 +24,11 @@ import (
 // testCmd represents the test command
 var testCmd = &cobra.Command{
 	Use:   "test",
-	Short: "Test mode",
+	Short: "Run shell command with arguments on 'test' mode",
 	Long: `
-Execute actions on 'test' mode. For example:
+Run shell command with arguments on 'test' mode. For example:
 
-eveadm test list
-`,
+eveadm test ps x`,
 	Run: func(cmd *cobra.Command, args []string) {
 		envs = cmd.Flag("env").Value.String()
 		if verbose {
