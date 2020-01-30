@@ -1,7 +1,7 @@
 
 Run shell command with arguments in 'list' action on 'xen' mode. For example:
 
-eveadm xen list ps x
+eveadm xen list
 
 Usage:
   eveadm xen list [flags]

@@ -1,7 +1,8 @@
 
 Run shell command with arguments in 'info' action on 'rkt' mode. For example:
 
-eveadm rkt info
+eveadm rkt info --image uuid
+eveadm rkt info uuid
 
 Usage:
   eveadm rkt info uuid [flags]

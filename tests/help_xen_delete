@@ -1,7 +1,7 @@
 
 Run shell command with arguments in 'delete' action on 'xen' mode. For example:
 
-eveadm xen delete ps x
+eveadm xen delete uuid
 
 Usage:
   eveadm xen delete [flags]

@@ -1,6 +1,6 @@
 Run shell command with arguments in 'start' action on 'rkt' mode. For example:
 
-eveadm rkt start
+eveadm rkt start uuid
 
 Usage:
   eveadm rkt start id [flags]

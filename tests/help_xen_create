@@ -1,13 +1,15 @@
 
 Run shell command with arguments in 'create' action on 'xen' mode. For example:
 
-eveadm xen create ps x
+eveadm xen create --xen-cfg-filename=dom.cfg
 
 Usage:
   eveadm xen create [flags]
 
 Flags:
-  -h, --help   help for create
+  -h, --help                      help for create
+  -p, --paused                    Run paused (default true)
+      --xen-cfg-filename string   File with xen cfg for stage1
 
 Global Flags:
       --config string             config file (default is $HOME/.eveadm.yaml)

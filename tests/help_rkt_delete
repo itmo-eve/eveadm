@@ -1,7 +1,7 @@
 
 Run shell command with arguments in 'delete' action on 'rkt' mode. For example:
 
-eveadm rkt delete ps x
+eveadm rkt delete uuid
 
 Usage:
   eveadm rkt delete uuid [flags]
