@@ -1,6 +1,6 @@
 Run shell command with arguments in 'start' action on 'xen' mode. For example:
 
-eveadm xen start ps x
+eveadm xen start uuid
 
 Usage:
   eveadm xen start [flags]

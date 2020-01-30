@@ -1,13 +1,15 @@
 
 Run shell command with arguments in 'info' action on 'xen' mode. For example:
 
-eveadm xen info ps x
+eveadm xen info uuid
+eveadm xen info --domname name
 
 Usage:
   eveadm xen info [flags]
 
 Flags:
-  -h, --help   help for info
+      --domname   Work with name
+  -h, --help      help for info
 
 Global Flags:
       --config string             config file (default is $HOME/.eveadm.yaml)

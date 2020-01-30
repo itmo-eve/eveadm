@@ -1,6 +1,6 @@
 Run shell command with arguments in 'stop' action on 'rkt' mode. For example:
 
-eveadm rkt stop
+eveadm rkt stop uuid
 
 Usage:
   eveadm rkt stop [flags]

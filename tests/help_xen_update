@@ -1,6 +1,6 @@
 Run shell command with arguments in 'update' action on 'xen' mode. For example:
 
-eveadm xen update ps x
+eveadm xen update
 
 Usage:
   eveadm xen update [flags]

@@ -1,6 +1,6 @@
 Run shell command with arguments in 'stop' action on 'xen' mode. For example:
 
-eveadm xen stop ps x
+eveadm xen stop uuid
 
 Usage:
   eveadm xen stop [flags]

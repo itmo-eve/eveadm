@@ -1,7 +1,8 @@
 
 Run shell command with arguments in 'list' action on 'rkt' mode. For example:
 
-eveadm rkt list ps x
+eveadm rkt list --image
+eveadm rkt list
 
 Usage:
   eveadm rkt list [flags]
