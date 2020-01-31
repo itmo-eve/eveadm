@@ -13,8 +13,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var envs string
-var test bool
+var Envs string
+var Test bool
+var Run func (command *cobra.Command, timeout time.Duration, args []string, env string) (rerr, cerr error, stdout, stderr bytes.Buffer)
 
 func run_out (rerr error, cerr error, sout bytes.Buffer, serr bytes.Buffer) {
 	if rerr != nil {
@@ -36,7 +37,7 @@ func rune(timeout time.Duration, args []string, env string) (rerr error, cerr er
 	var serr bytes.Buffer
 
 	if len(args) > 0 {
-		envs := strings.Split(env, " ")
+		Envs := strings.Split(env, " ")
 		cmd := args[0]
 		args = args[1:]
 		if timeout != 0 {
@@ -48,7 +49,7 @@ func rune(timeout time.Duration, args []string, env string) (rerr error, cerr er
 			cmd := exec.CommandContext(cnt, cmd, args...)
 			cmd.Stdout = &sout
 			cmd.Stderr = &serr
-			cmd.Env = append(os.Environ(), envs...)
+			cmd.Env = append(os.Environ(), Envs...)
 
 			re = cmd.Run()
 			ce = cnt.Err()
@@ -56,11 +57,11 @@ func rune(timeout time.Duration, args []string, env string) (rerr error, cerr er
 			cmd := exec.Command(cmd, args...)
 			cmd.Stdout = &sout
 			cmd.Stderr = &serr
-			cmd.Env = append(os.Environ(), envs...)
+			cmd.Env = append(os.Environ(), Envs...)
 
 			re = cmd.Run()
 		}
-		if verbose {
+		if Verbose {
 			run_out(re, ce, sout, serr)
 		}
 	}
@@ -77,7 +78,7 @@ func run(command *cobra.Command, timeout time.Duration, args []string, env strin
 	var serr bytes.Buffer
 
 	if len(args) > 0 {
-		envs := strings.Split(env, " ")
+		Envs := strings.Split(env, " ")
 		cmd := args[0]
 		args = args[1:]
 		if timeout != 0 {
@@ -89,7 +90,7 @@ func run(command *cobra.Command, timeout time.Duration, args []string, env strin
 			cmd := exec.CommandContext(cnt, cmd, args...)
 			cmd.Stdout = &sout
 			cmd.Stderr = &serr
-			cmd.Env = append(os.Environ(), envs...)
+			cmd.Env = append(os.Environ(), Envs...)
 
 			re = cmd.Run()
 			ce = cnt.Err()
@@ -101,7 +102,7 @@ func run(command *cobra.Command, timeout time.Duration, args []string, env strin
 			cmd := exec.Command(cmd, args...)
 			cmd.Stdout = &sout
 			cmd.Stderr = &serr
-			cmd.Env = append(os.Environ(), envs...)
+			cmd.Env = append(os.Environ(), Envs...)
 
 			re = cmd.Run()
 		}
@@ -114,7 +115,7 @@ func run(command *cobra.Command, timeout time.Duration, args []string, env strin
                         if err != nil {
                                 fmt.Fprint(command.OutOrStdout(), serr.String())
                         }
-			if !test {
+			if !Test {
 				os.Exit(waitStatus.ExitStatus())
 			} else {
 				return re, ce, sout, serr
