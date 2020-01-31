@@ -1,0 +1,20 @@
+
+Run shell command with arguments in 'create' action on 'xen' mode. For example:
+
+eveadm xen create --xen-cfg-filename=dom.cfg
+
+Usage:
+  eveadm xen create [flags]
+
+Flags:
+  -h, --help                      help for create
+  -p, --paused                    Run paused (default true)
+      --xen-cfg-filename string   File with xen cfg for stage1
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution

@@ -1,0 +1,25 @@
+
+Run shell command with arguments in 'create' action on 'rkt' mode. For example:
+
+eveadm rkt create --image url
+eveadm rkt create image_uuid
+
+Usage:
+  eveadm rkt create url/uuid [flags]
+
+Flags:
+  -h, --help                      help for create
+  -i, --image                     Work with images
+      --no-overlay                Run without overlay
+      --paused                    Run paused (default true)
+      --stage1-path string        Stage1 path (default "/usr/sbin/stage1-xen.aci")
+      --uuid-file-save string     File to save uuid
+      --xen-cfg-filename string   File with xen cfg for stage1
+
+Global Flags:
+      --config string             config file (default is $HOME/.eveadm.yaml)
+      --dir string                RKT data dir
+      --insecure-options string   RKT insecure-options (default "image")
+      --stage1-type string        Type of stage1 (xen or general) (default "xen")
+  -t, --timeout string            Actions timeout in minutes
+  -v, --verbose                   Verbose execution

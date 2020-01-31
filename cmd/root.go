@@ -29,7 +29,7 @@ import (
 var cfgFile string
 var Timeout time.Duration
 var timeout string
-var verbose bool
+var Verbose bool
 var RootCmd *cobra.Command
 
 // rootCmd represents the base command when called without any subcommands
@@ -75,6 +75,7 @@ func init() {
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	RootCmd = rootCmd
+	Run = run
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -102,7 +103,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
-        verbose = viper.GetBool("verbose")
+        Verbose = viper.GetBool("verbose")
         timeout = viper.GetString("timeout")
         if len(timeout) > 0 {
                 minutes, err := strconv.Atoi(timeout)
@@ -111,7 +112,7 @@ func initConfig() {
                         fmt.Println(err)
                 }
         }
-	if verbose {
+	if Verbose {
 		fmt.Println("Timeout:", Timeout)
 	}
 }
