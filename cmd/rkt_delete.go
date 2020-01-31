@@ -46,7 +46,7 @@ eveadm rkt delete uuid`,
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
-		rktctx.rktRuneWrapper(Timeout, args, envs, cmd.Name())
+		Run(cmd, Timeout, args, envs)
 	},
 }
 

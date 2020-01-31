@@ -35,7 +35,7 @@ eveadm xen create --xen-cfg-filename=dom.cfg
 		if err != nil {
 			log.Fatalf("Error in obtain params in %s", cmd.Name())
 		}
-		xenctx.xenRuneWrapper(Timeout, args, envs, cmd.Name())
+		Run(cmd, Timeout, args, envs)
 	},
 }
 

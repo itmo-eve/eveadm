@@ -2,12 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"syscall"
-	"time"
 )
 
 type XENContext struct {
@@ -19,30 +13,6 @@ type XENContext struct {
 }
 
 var xenctx XENContext
-
-func (ctx XENContext) xenRuneWrapper(timeout time.Duration, args []string, env string, cmdName string) {
-	err, cerr, stdout, stderr := rune(timeout, args, env)
-	if cerr != nil {
-		log.Fatalf("Context error in %s", cmdName)
-	}
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			waitStatus := exitError.Sys().(syscall.WaitStatus)
-			fmt.Printf("%s", stdout.String())
-			_, err = fmt.Fprintf(os.Stderr, "%s", stderr.String())
-			if err != nil {
-				fmt.Printf("%s", stderr.String())
-			}
-			os.Exit(waitStatus.ExitStatus())
-		} else {
-			_, err = fmt.Fprintf(os.Stderr, "Execute error in %s: %s\n", cmdName, err.Error())
-			if err != nil {
-				fmt.Printf("Execute error in %s: %s\n", cmdName, err.Error())
-			}
-		}
-	}
-	fmt.Printf("%s", stdout.String())
-}
 
 func (ctx XENContext) xenListToCmd() (err error, args []string, envs string) {
 	args = []string{"xl", "list"}
