@@ -68,10 +68,10 @@ func TestRktSequence(t *testing.T) {
 		}
 		if hasXL {
 			//fix container_create for stage1-xen.aci
-			tests[3].args = []string{"rkt", "create", imageHash, "--dir=" + dname, "--stage1-path=/root/stage1-xen.aci", "--paused=true"}
+			tests[3].args = []string{"rkt", "create", imageHash, "--dir=" + dname, "--paused=true"}
 			tests[3].useEveAdm = true
-
-
+			tests[3].contains = []string{}
+			tests[3].omit = []string{"Running as unit"}
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
