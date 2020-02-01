@@ -40,11 +40,6 @@ echo "sleep 5"
 echo ========================================
 sleep 5
 echo ========================================
-echo "start container"
-echo ========================================
-echo './eveadm rkt start --dir="$home_dir" --stage1-type=common "$CONTAINER_UUID"'
-./eveadm rkt start --dir="$home_dir" --stage1-type=common "$CONTAINER_UUID"
-echo ========================================
 echo "list container"
 echo ========================================
 echo 'until [ "$CONTAINERS" ]
@@ -61,6 +56,11 @@ echo 'CONTAINER_UUID=$(echo "$CONTAINERS"|cut -f1)'
 CONTAINER_UUID=$(echo "$CONTAINERS"|cut -f1)
 echo 'echo "$CONTAINER_UUID"'
 echo "$CONTAINER_UUID"
+echo ========================================
+echo "start container"
+echo ========================================
+echo './eveadm rkt start --dir="$home_dir" --stage1-type=common "$CONTAINER_UUID"'
+./eveadm rkt start --dir="$home_dir" --stage1-type=common "$CONTAINER_UUID"
 echo ========================================
 echo "info container"
 echo ========================================
