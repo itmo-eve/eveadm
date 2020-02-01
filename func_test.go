@@ -39,7 +39,8 @@ var test_tests = map[string][]string {
         "tests/test-h": []string {"test", "-h"},
 }
 */
-func TestTestExecute (t *testing.T) {
+
+func TestFuncExecute (t *testing.T) {
 	var eout string
 /*
 	for f, a := range test_tests {
