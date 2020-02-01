@@ -13,7 +13,7 @@ import (
 
 var rktTestDir = "pods_test"
 var binaryName = "eveadm"
-var imageHash = "sha512-114811ba5b71aa49a5e31a1fe8832b75"
+var imageHash = "sha512-5bee98b12bc8eb63425d8af93a8dc1be"
 
 func TestRktSequence(t *testing.T) {
 	hasXL := false
@@ -55,7 +55,7 @@ func TestRktSequence(t *testing.T) {
 			useEveAdm bool
 			sleep     time.Duration
 		}{
-			{"image_create", []string{"rkt", "create", "--image=true", "docker://alpine:3.11", "--dir=" + dname}, []string{"sha512", imageHash}, []string{}, true, 0},
+			{"image_create", []string{"rkt", "create", "--image=true", "docker://library/alpine:3.11", "--dir=" + dname}, []string{"sha512", imageHash}, []string{}, true, 0},
 			{"image_list", []string{"rkt", "list", "--image=true", "--dir=" + dname, "--no-legend=true"}, []string{"sha512", "registry-1.docker.io/library/alpine:3.11"}, []string{"LAST USED"}, true, 0},
 			{"image_info", []string{"rkt", "info", "--image=true", imageHash, "--dir=" + dname}, []string{}, []string{}, true, 0},
 			{"container_create", []string{"systemd-run", path.Join(dir, binaryName), "rkt", "create", imageHash, "--dir=" + dname, "--no-overlay=true", "--stage1-path="}, []string{"Running as unit"}, []string{}, false, 0},
