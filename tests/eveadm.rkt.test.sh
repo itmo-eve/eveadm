@@ -1,22 +1,23 @@
 #!/bin/sh
-if ! [ $(id -u) = 0 ]; then
+if [ $(id -u) != 0 ]; then
    echo "The script need to be run as root." >&2
    exit 1
 fi
 
-echo '
-EVEADM=../eveadm
-curdir=$PWD
+curdir=$(realpath $0)
+echo curdir=$curdir
+curdir=$(dirname $curdir)
+echo curdir=$curdir
 home_dir=/tmp/pods_test
-rm -rf "$home_dir"
-mkdir "$home_dir"
-echo "$home_dir"'
-EVEADM=../eveadm
-curdir=$PWD
-home_dir=/tmp/pods_test
-rm -rf "$home_dir"
-mkdir "$home_dir"
 echo "$home_dir"
+EVEADM=$curdir/../eveadm
+echo EVEADM=$EVEADM
+home_dir=/tmp/pods_test
+echo rm -rf "$home_dir"
+rm -rf "$home_dir"
+echo mkdir "$home_dir"
+mkdir "$home_dir"
+
 echo ========================================
 echo "create image"
 echo ========================================
@@ -37,8 +38,8 @@ $EVEADM rkt info -i --dir="$home_dir" "$IMAGE_HASH"
 echo ========================================
 echo "create container"
 echo ========================================
-echo systemd-run "$curdir"/$EVEADM rkt create --dir="$home_dir" "$IMAGE_HASH" --no-overlay=true --stage1-path="/root/stage1-xen.aci"
-systemd-run "$curdir"/$EVEADM rkt create --dir="$home_dir" "$IMAGE_HASH" --no-overlay=true --stage1-path="/root/stage1-xen.aci"
+echo systemd-run $EVEADM rkt create --dir="$home_dir" "$IMAGE_HASH" --no-overlay=true --stage1-path="$curdir/stage1-xen.aci"
+systemd-run $EVEADM rkt create --dir="$home_dir" "$IMAGE_HASH" --no-overlay=true --stage1-path="$curdir/stage1-xen.aci"
 echo ========================================
 echo "sleep 5"
 echo ========================================

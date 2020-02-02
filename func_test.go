@@ -33,55 +33,45 @@ func init() {
 	cmd.RootCmd.AddCommand(testCmd)
 	testCmd.PersistentFlags().StringP("env", "e", "", "Setting environment variables")
 }
-/*
-var test_tests = map[string][]string {
-        "tests/help_test": []string {"help", "test"},
-        "tests/test-h": []string {"test", "-h"},
-}
-*/
 
 func TestFuncExecute (t *testing.T) {
 	var eout string
-/*
-	for f, a := range test_tests {
-		dat, err := ioutil.ReadFile(f)
-		check(err)
-		tst := string(dat)
 
-		out, err := executeCommand(cmd.RootCmd, a...)
-		check(err)
-		res := strings.Compare(tst, out)
-		if res != 0 {
-			e := fmt.Sprintf("Command not passed -- args: %q file: %s\n", a, f)
-			t.Errorf(e)	
+	t.Run("correct execution", func(t *testing.T) {
+		eout, _ = executeCommand(cmd.RootCmd, "test", "ls")
+		checkStringContains(t, eout, "README.md")
+	})
+
+	t.Run("wrong execution", func(t *testing.T) {
+		eout, _ = executeCommand(cmd.RootCmd, "test", "ls", "qwe")
+		checkStringContains(t, eout, "No such file or directory")
+
+	})
+
+	t.Run("environment variables setting", func(t *testing.T) {
+		eout, _ = executeCommand(cmd.RootCmd, "test", "locale")
+		checkStringOmits(t, eout, "LANG=ru_RU.UTF-8")
+		//checkStringContains(t, eout, "LANG=C")
+
+		eout, _ = executeCommand(cmd.RootCmd, "test", "locale", "-e",
+			"LANG=ru_RU.UTF-8")
+		checkStringContains(t, eout, "LANG=ru_RU.UTF-8")
+
+	})
+
+	t.Run("timewait", func(t *testing.T) {
+		start := time.Now()
+		eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100")
+		elapsed := time.Since(start)
+		if elapsed < 100 * time.Second {
+			t.Errorf("Expected time of execution for 'sleep 100': \n %v\nGot:\n %v\n", 100 * time.Second, elapsed)
 		}
-	}
-*/
-	eout, _ = executeCommand(cmd.RootCmd, "test", "ls")
-	checkStringContains(t, eout, "README.md")
 
-	eout, _ = executeCommand(cmd.RootCmd, "test", "ls", "qwe")
-	checkStringContains(t, eout, "No such file or directory")
-
-	eout, _ = executeCommand(cmd.RootCmd, "test", "locale")
-	checkStringOmits(t, eout, "LANG=ru_RU.UTF-8")
-	//checkStringContains(t, eout, "LANG=C")
-
-	eout, _ = executeCommand(cmd.RootCmd, "test", "locale", "-e",
-		"LANG=ru_RU.UTF-8")
-	checkStringContains(t, eout, "LANG=ru_RU.UTF-8")
-
-	start := time.Now()
-	eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100")
-	elapsed := time.Since(start)
-	if elapsed < 100 * time.Second {
-		t.Errorf("Expected time of execution for 'sleep 100': \n %v\nGot:\n %v\n", 100 * time.Second, elapsed)
-	}
-
-	start = time.Now()
-	eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100", "-t", "1")
-	elapsed = time.Since(start)
-	if elapsed > 100 * time.Second {
-		t.Errorf("Expected time of execution for 'sleep 100 -t 1': \n %v\nGot:\n %v\n", 1 * time.Minute, elapsed)
-	}
+		start = time.Now()
+		eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100", "-t", "1")
+		elapsed = time.Since(start)
+		if elapsed > 100 * time.Second {
+			t.Errorf("Expected time of execution for 'sleep 100 -t 1': \n %v\nGot:\n %v\n", 1 * time.Minute, elapsed)
+		}
+	})
 }
