@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -60,8 +61,8 @@ func TestRktSequence(t *testing.T) {
 			{"image_info", []string{"rkt", "info", "--image=true", imageHash, "--dir=" + dname}, []string{}, []string{}, true, 0},
 			{"container_create", []string{"systemd-run", path.Join(dir, binaryName), "rkt", "create", imageHash, "--dir=" + dname, "--no-overlay=true", "--stage1-path="}, []string{"Running as unit"}, []string{}, false, 0},
 			{"container_list", []string{"rkt", "list", "--dir=" + dname, "--no-legend=true"}, []string{"alpine"}, []string{"ID"}, true, 10},
+			{"container_info", []string{"rkt", "info", "--dir=" + dname, containerHash}, []string{"state"}, []string{}, true, 0},
 			{"container_start", []string{"rkt", "start", "--dir=" + dname, "--stage1-type=common", containerHash}, []string{"Not implemented"}, []string{}, true, 0},
-			{"container_info", []string{"rkt", "info", "--dir=" + dname, containerHash}, []string{"state", "exited"}, []string{}, true, 0},
 			{"container_stop", []string{"rkt", "stop", "--dir=" + dname, containerHash}, []string{containerHash}, []string{}, true, 0},
 			{"container_delete", []string{"rkt", "delete", "--dir=" + dname, containerHash}, []string{containerHash}, []string{}, true, 0},
 			{"image_delete", []string{"rkt", "delete", "--image=true", "--dir=" + dname, imageHash}, []string{imageHash}, []string{}, true, 0},
@@ -103,22 +104,28 @@ func TestRktSequence(t *testing.T) {
 						t.Fatalf("actual = %s, omitted = %s", actual, omitted)
 					}
 				}
-				if tt.name == "container_list"{
-					containerHash = strings.Split(actual,"\t")[0]
+				if tt.name == "container_list" {
+					containerHash = strings.Split(actual, "\t")[0]
 					//fix container_start for actual containerHash
-					if hasXL {
-						tests[5].args = []string{"rkt", "start", "--dir=" + dname, containerHash}
-						tests[5].contains = []string{}
-						tests[5].omit = []string{"Not implemented"}
-					}else {
-						tests[5].args = []string{"rkt", "start", "--dir=" + dname, "--stage1-type=common", containerHash}
+					tests[5].args = []string{"rkt", "info", "--dir=" + dname, containerHash}
+				}
+				if tt.name == "container_info" {
+					re := regexp.MustCompile(`"name":[ ]?"([a-z0-9-]*)"`)
+					resultsFind := re.FindSubmatch([]byte(actual))
+					if resultsFind != nil && len(resultsFind) == 2 {
+						containerHash = string(resultsFind[1])
+						if hasXL {
+							tests[6].args = []string{"rkt", "start", "--dir=" + dname, containerHash}
+							tests[6].contains = []string{}
+							tests[6].omit = []string{"Not implemented"}
+						} else {
+							tests[6].args = []string{"rkt", "start", "--dir=" + dname, "--stage1-type=common", containerHash}
+						}
+						tests[7].args = []string{"rkt", "stop", "--dir=" + dname, containerHash}
+						tests[7].contains = []string{containerHash}
+						tests[8].args = []string{"rkt", "delete", "--dir=" + dname, containerHash}
+						tests[8].contains = []string{containerHash}
 					}
-
-					tests[6].args = []string{"rkt", "info", "--dir=" + dname, containerHash}
-					tests[7].args = []string{"rkt", "stop", "--dir=" + dname, containerHash}
-					tests[7].contains = []string{containerHash}
-					tests[8].args = []string{"rkt", "delete", "--dir=" + dname, containerHash}
-					tests[8].contains = []string{containerHash}
 				}
 			})
 		}
