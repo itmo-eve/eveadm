@@ -16,4 +16,5 @@ test_rkt: eveadm
 	go test test_utils.go rkt_test.go
 
 test_xen: eveadm
+	brctl show|grep xenbr0||brctl addbr xenbr0
 	go test test_utils.go xen_test.go

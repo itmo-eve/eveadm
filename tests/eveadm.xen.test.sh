@@ -4,18 +4,18 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 
-echo '
-EVEADM=../eveadm
+curdir=$(realpath $0)
+echo curdir=$curdir
+curdir=$(dirname $curdir)
+echo curdir=$curdir
+EVEADM=$curdir/../eveadm
+echo EVEADM=$EVEADM
 home_dir=/tmp/xen_test
-rm -rf "$home_dir"
-mkdir "$home_dir"
 echo "$home_dir"
-name="testxen"'
-EVEADM=../eveadm
-home_dir=/tmp/xen_test
+echo rm -rf "$home_dir"
 rm -rf "$home_dir"
+echo mkdir "$home_dir"
 mkdir "$home_dir"
-echo "$home_dir"
 name="testxen"
 
 echo ========================================

@@ -5,11 +5,12 @@ Manage EVE virtual machines and containers
 ```make```
 
 ## Testing
+This command should run with 'root' privileges.
 ```make test```
 
 ## Running
 Supports the command hierarchy described by the command:
-```./eveadm help```
+```eveadm help```
 
 ## Modules
 Currently implemented modules:
