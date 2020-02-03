@@ -15,8 +15,8 @@ Supports the command hierarchy described by the command:
 
 ## Modules
 Currently implemented modules:
-* xen -- for working with Xen VMs (now only the 'test' functionality);
-* rkt -- for working with RKT containers (now only the 'test' functionality) .
+* xen -- for working with Xen VMs;
+* rkt -- for working with RKT containers.
 
 Each module supports actions:
 * create
