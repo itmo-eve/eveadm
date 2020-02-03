@@ -11,9 +11,9 @@ import (
 
 var tests = map[string][]string {
 /*
+*/
 	"tests/help": []string {"help"},
         "tests/h": []string {"-h"},
-*/
         "tests/help_rkt": []string {"help", "rkt"},
         "tests/rkt-h": []string {"rkt", "-h"},
         "tests/help_rkt_create": []string {"help", "rkt", "create"},
@@ -49,18 +49,22 @@ var tests = map[string][]string {
 }
 
 
-func TestExecute (t *testing.T) {
+func TestHelpExecute (t *testing.T) {
 	for f, a := range tests {
-		dat, err := ioutil.ReadFile(f)
-		check(err)
-		tst := string(dat)
-
-		out, err := executeCommand(cmd.RootCmd, a...)
-		check(err)
-		res := strings.Compare(tst, out)
-		if res != 0 {
-			e := fmt.Sprintf("Command not passed -- args: %q file: %s\n", a, f)
-			t.Errorf(e)	
-		}
+		name := strings.Join(a, " ")
+		fmt.Println(name)
+		t.Run(name, func(t *testing.T) {
+			dat, err := ioutil.ReadFile(f)
+			check(err)
+			tst := string(dat)
+			
+			out, err := executeCommand(cmd.RootCmd, a...)
+			check(err)
+			res := strings.Compare(tst, out)
+			if res != 0 {
+				e := fmt.Sprintf("Command not passed -- args: %q file: %s\n", a, f)
+				t.Errorf(e)
+			}
+		})
 	}
 }
