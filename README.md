@@ -5,9 +5,7 @@ Manage EVE virtual machines and containers
 ```make```
 
 ## Testing
-This command should run with 'root' privileges:
-
-```make test```
+For testing, you need to install Ubuntu Server 18.04, esecute the setup script [tests/build_all_ubuntu_bionic_beaver.sh](https://github.com/itmo-eve/eveadm/blob/master/tests/build_all_ubuntu_bionic_beaver.sh) and run the ```make test``` command with root privileges.
 
 ## Running
 Supports the command hierarchy described by the command:
