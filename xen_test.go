@@ -64,6 +64,7 @@ func TestXenSequence(t *testing.T) {
 		defer configFile.Close()
 
 		_, err = configFile.WriteString(`name = "` + testName + `"
+on_poweroff = "preserve"
 bootloader = "pygrub"
 extra = "console=hvc0 root=/dev/xvda1"
 memory = 128

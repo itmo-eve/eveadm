@@ -25,6 +25,7 @@ echo wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img -O
 wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img -O "$home_dir"/cirros.qcow2
 echo 'cat << EOF > "$home_dir"/config.cfg
 name = "$name"
+on_poweroff = "preserve"
 bootloader = "pygrub"
 extra = "console=hvc0 root=/dev/xvda1"
 memory = 128
