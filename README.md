@@ -5,7 +5,8 @@ Manage EVE virtual machines and containers
 ```make```
 
 ## Testing
-This command should run with 'root' privileges.
+This command should run with 'root' privileges:
+
 ```make test```
 
 ## Running
