@@ -45,23 +45,30 @@ func TestXenSequence(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer out.Close()
 		resp, err := http.Get("http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img")
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer resp.Body.Close()
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
 			t.Fatal(err)
 		}
-		out.Sync()
-
+		err = out.Sync()
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = out.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
 		configFile, err := os.Create(path.Join(dname, "config.cfg"))
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer configFile.Close()
 
 		_, err = configFile.WriteString(`name = "` + testName + `"
 on_poweroff = "preserve"
@@ -75,7 +82,14 @@ disk = [ '` + path.Join(dname, "cirros.qcow2") + `,qcow2,xvda,rw' ]
 		if err != nil {
 			t.Fatal(err)
 		}
-		configFile.Sync()
+		err = configFile.Sync()
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = configFile.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
 		tests := []struct {
 			name      string
 			args      []string
