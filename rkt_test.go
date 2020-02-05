@@ -32,7 +32,7 @@ func TestRktSequence(t *testing.T) {
 
 	var rktTestDir = "pods_test"
 	var binaryName = "eveadm"
-
+	var stage1XenPath = ""
 	hasXL := false
 	dir, err := os.Getwd()
 	xlcmd := exec.Command("which", "xl")
@@ -42,6 +42,11 @@ func TestRktSequence(t *testing.T) {
 	} else {
 		if strings.Contains(string(output), "xl") {
 			hasXL = true
+			stage1XenPath = path.Join(dir, "tests", "stage1-xen.aci")
+			_, err := os.Stat(stage1XenPath)
+			if os.IsNotExist(err) {
+				t.Fatal("No stage1-xen.aci found in tests directory")
+			}
 		}
 	}
 	idcmd := exec.Command("id", "-u")
@@ -110,7 +115,7 @@ func TestRktSequence(t *testing.T) {
 			containerCreate = rktTestRun{
 				"container_create",
 				func() []string {
-					return []string{"rkt", "create", rktCtx.imageHash, "--dir=" + dname, "--paused=true"}
+					return []string{"rkt", "create", rktCtx.imageHash, "--dir=" + dname, "--paused=true", "--stage1-path=" + stage1XenPath}
 				},
 				func() []string {
 					return []string{}
