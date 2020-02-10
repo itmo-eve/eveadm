@@ -10,9 +10,7 @@ tmp_dir=$use_custom_dir
 else
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 fi
-unused_port=`comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
 ssh_port=`comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
-config_file="$PWD"/cfg.json
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -28,7 +26,14 @@ echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
 cd $eve_dir||exit
+cd conf||exit
+onboarduuid=$(uuidgen)
+sn=$(head -200 /dev/urandom | cksum | cut -f1 -d " "|fold -w 8|head -n 1)
+openssl ecparam -name prime256v1 -genkey -noout -out onboard.key.pem
+openssl req -x509 -new -nodes -key onboard.key.pem -sha256 -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=$onboarduuid" -days 1024 -out onboard.cert.pem
+cd $eve_dir||exit
 sed -i "s/SandyBridge/host/g" Makefile
+sed -i "s/31415926/$sn/g" Makefile
 make live
 nohup make ACCEL=true SSH_PORT=$ssh_port run >$tmp_dir/eve.log 2>&1 &
 echo $! >../eve.pid
@@ -39,16 +44,20 @@ echo ========================================
 echo "EVE config successfull"
 echo ========================================
 echo "Please use Onboarding Key"
-echo "5d0767ee-0547-4569-b530-387e526f8cb9"
+echo "$onboarduuid"
 echo "and Serial Number"
-echo "31415926"
+echo "$sn"
 echo "in zedcloud.zededa.net"
-read -rsn1 -p"Press any key to cleanup";echo
-kill `cat $tmp_dir/eve.pid`
-sleep 5
-if [ -n "$use_custom_dir" ]
+read -p "Do you want to cleanup? (y/n)" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
 then
-rm -rf $use_custom_dir/*
-else
-rm -rf $tmp_dir
+  kill `cat $tmp_dir/eve.pid`
+  sleep 5
+  if [ -n "$use_custom_dir" ]
+  then
+    rm -rf $use_custom_dir/*
+  else
+    rm -rf $tmp_dir
+  fi
 fi
