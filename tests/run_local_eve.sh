@@ -23,10 +23,16 @@ touch ~/.rnd
 cd "$tmp_dir" || exit
 git clone https://github.com/itmo-eve/eve.git
 echo ========================================
+echo "Generate keypair for ssh"
+echo ========================================
+ssh-keygen -t rsa -f ~/.ssh/id_rsa <<< n
+echo
+echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
 cd $eve_dir||exit
 cd conf||exit
+yes | cp -f ~/.ssh/id_rsa.pub authorized_keys
 onboarduuid=$(uuidgen)
 sn=$(head -200 /dev/urandom | cksum | cut -f1 -d " "|fold -w 8|head -n 1)
 openssl ecparam -name prime256v1 -genkey -noout -out onboard.key.pem
@@ -48,6 +54,8 @@ echo "$onboarduuid"
 echo "and Serial Number"
 echo "$sn"
 echo "in zedcloud.zededa.net"
+echo "You can connect to node via ssh"
+echo "sudo ssh -p $ssh_port 127.0.0.1"
 read -p "Do you want to cleanup? (y/n)" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
