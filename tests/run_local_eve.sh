@@ -3,13 +3,20 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
-use_custom_dir=$1
-if [ -n "$use_custom_dir" ]
-then
-tmp_dir=$use_custom_dir
-else
+memory_to_use=4096
+while [ -n "$1" ]
+do
+case "$1" in
+-m) memory_to_use="$2"
+echo "Use with memory $memory_to_use"
+shift ;;
+--) shift
+break ;;
+*) echo "$1 is not an option";;
+esac
+shift
+done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
-fi
 ssh_port=`comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
@@ -25,7 +32,7 @@ git clone https://github.com/itmo-eve/eve.git
 echo ========================================
 echo "Generate keypair for ssh"
 echo ========================================
-ssh-keygen -t rsa -f ~/.ssh/id_rsa <<< n
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N "" <<< n
 echo
 echo ========================================
 echo "Prepare and run EVE"
@@ -40,6 +47,7 @@ openssl req -x509 -new -nodes -key onboard.key.pem -sha256 -subj "/C=RU/ST=SPB/O
 cd $eve_dir||exit
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/31415926/$sn/g" Makefile
+sed -i "s/-m 4096/-m $memory_to_use/g" Makefile
 make live
 nohup make ACCEL=true SSH_PORT=$ssh_port run >$tmp_dir/eve.log 2>&1 &
 echo $! >../eve.pid
@@ -56,16 +64,14 @@ echo "$sn"
 echo "in zedcloud.zededa.net"
 echo "You can connect to node via ssh"
 echo "sudo ssh -p $ssh_port 127.0.0.1"
-read -p "Do you want to cleanup? (y/n)" -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  kill `cat $tmp_dir/eve.pid`
-  sleep 5
-  if [ -n "$use_custom_dir" ]
-  then
-    rm -rf $use_custom_dir/*
-  else
-    rm -rf $tmp_dir
-  fi
-fi
+while true; do
+    read -p "Do you want to cleanup? (y/n)" yn
+    case $yn in
+        [Yy]* )
+          kill `cat $tmp_dir/eve.pid`
+          sleep 5
+          rm -rf $tmp_dir; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
