@@ -3,6 +3,7 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
+eve_repo=https://github.com/itmo-eve/eve.git
 memory_to_use=4096
 while [ -n "$1" ]
 do
@@ -28,18 +29,18 @@ snap install --classic go
 apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq
 touch ~/.rnd
 cd "$tmp_dir" || exit
-git clone https://github.com/itmo-eve/eve.git
+git clone $eve_repo
 echo ========================================
-echo "Generate keypair for ssh"
+echo "Generate keypair for ssh (no overwrite if exists)"
 echo ========================================
-ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N "" <<< n
+ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "" <<< n
 echo
 echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
 cd $eve_dir||exit
 cd conf||exit
-yes | cp -f ~/.ssh/id_rsa.pub authorized_keys
+yes | cp -f /root/.ssh/id_rsa.pub authorized_keys
 onboarduuid=$(uuidgen)
 sn=$(head -200 /dev/urandom | cksum | cut -f1 -d " "|fold -w 8|head -n 1)
 openssl ecparam -name prime256v1 -genkey -noout -out onboard.key.pem
@@ -70,7 +71,7 @@ while true; do
         [Yy]* )
           kill `cat $tmp_dir/eve.pid`
           sleep 5
-          rm -rf $tmp_dir; break;;
+          rm -rf $tmp_dir ; break;;
         [Nn]* ) exit;;
         * ) echo "Please answer y or n.";;
     esac
