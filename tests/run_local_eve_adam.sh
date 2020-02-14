@@ -3,10 +3,16 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
+use_custom_dir=$1
+if [ -n "$use_custom_dir" ]
+then
+tmp_dir=$use_custom_dir
+else
+tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
+fi
 unused_port=`comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
 ssh_port=`comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
 config_file="$PWD"/cfg.json
-tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -30,13 +36,14 @@ mkdir -p run/adam
 mkdir -p run/config
 cp "$config_file" run/
 cd run/adam||exit
+onboarduuid=$(uuidgen)
 openssl genrsa -out rootCA.key 4096
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=test" -days 1024 -out rootCA.crt
 openssl ecparam -name prime256v1 -genkey -out server-key.pem
 openssl req -new -sha256 -key server-key.pem -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=mydomain.com" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "\n[SAN]\nsubjectAltName=DNS:mydomain.com,IP:$IP")) -out server.csr
 openssl x509 -req -extfile <(printf "subjectAltName=DNS:mydomain.com,IP:$IP") -days 365 -in server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out server.pem
 openssl ecparam -name prime256v1 -genkey -out onboard.key
-openssl req -new -sha256 -key onboard.key -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=onboard" -out onboard.pem.csr
+openssl req -new -sha256 -key onboard.key -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=$onboarduuid" -out onboard.pem.csr
 openssl x509 -req -in onboard.pem.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out onboard.pem -days 500 -sha256
 cp rootCA.crt ../config/root-certificate.pem
 cp onboard.pem ../config/onboard.cert.pem
@@ -59,7 +66,7 @@ until docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https:/
   echo "Trying again. Try #$counter"
   ((counter++))
 done
-echo '*' >run/adam/onboard/onboard/onboard-serials.txt
+echo '*' >run/adam/onboard/$onboarduuid/onboard-serials.txt
 echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
@@ -99,4 +106,9 @@ read -rsn1 -p"Press any key to cleanup";echo
 kill `cat $tmp_dir/eve.pid`
 kill `cat $tmp_dir/adam.pid`
 sleep 5
+if [ -n "$use_custom_dir" ]
+then
+rm -rf $use_custom_dir/*
+else
 rm -rf $tmp_dir
+fi
