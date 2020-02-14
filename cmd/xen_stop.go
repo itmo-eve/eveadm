@@ -31,6 +31,11 @@ eveadm xen stop uuid`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		arg := args[0]
+		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			log.Fatalf("Error in get param force in %s", cmd.Name())
+		}
+		xenctx.force = force
 		xenctx.containerUUID = arg
 		err, args, envs := xenctx.xenStopToCmd()
 		if err != nil {
@@ -42,4 +47,5 @@ eveadm xen stop uuid`,
 
 func init() {
 	xenCmd.AddCommand(xenStopCmd)
+	xenStopCmd.Flags().BoolP("force", "f", false, "Force stop")
 }
