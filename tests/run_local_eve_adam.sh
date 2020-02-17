@@ -3,6 +3,7 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
+DIRECTORY=$(dirname "$0")
 eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/giggsoff/adam.git
 memory_to_use=4096
@@ -21,7 +22,11 @@ done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 unused_port=$(comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
 ssh_port=$(comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
-config_file="$PWD"/cfg.json
+config_file="$DIRECTORY"/cfg.json
+if [ ! -f "$config_file" ]; then
+    echo "Cannot find cfg.json"
+    exit 1
+fi
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -48,7 +53,7 @@ apt upgrade -y
 snap install --classic go
 apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq
 touch ~/.rnd
-cd "$tmp_dir" || exit
+cd "$tmp_dir" || exit 1
 git clone $eve_repo
 git clone $adam_repo
 echo ========================================
@@ -60,12 +65,12 @@ echo ========================================
 echo "Prepare and run ADAM"
 echo ========================================
 IP=$(hostname -I | cut -d' ' -f1)
-cd $adam_dir || exit
+cd $adam_dir || exit 1
 make build-docker
 mkdir -p run/adam
 mkdir -p run/config
 cp "$config_file" run/
-cd run/adam || exit
+cd run/adam || exit 1
 onboarduuid=$(uuidgen)
 openssl genrsa -out rootCA.key 4096
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=test" -days 1024 -out rootCA.crt
@@ -81,7 +86,7 @@ cp onboard.key ../config/onboard.key.pem
 echo "$IP" mydomain.com >../config/hosts
 echo mydomain.com:$unused_port >../config/server
 sudo chmod 644 ../config/*.pem
-cd "$adam_dir" || exit
+cd "$adam_dir" || exit 1
 nohup docker run -v "$adam_dir"/run:/adam/run -p $unused_port:8080 lfedge/adam server --conf-dir ./run/config/adam >$tmp_dir/adam.log 2>&1 &
 echo $! >../adam.pid
 echo ========================================
@@ -100,7 +105,7 @@ echo '*' >run/adam/onboard/$onboarduuid/onboard-serials.txt
 echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
-cd $eve_dir || exit
+cd $eve_dir || exit 1
 sed -i "s/eth0,net=192\.168\.1\.0\/24,dhcpstart=192\.168\.1\.10/eth0,net=$subnet1_prefix\.0\/24,dhcpstart=$subnet1_prefix\.10/g" Makefile
 sed -i "s/eth1,net=192\.168\.2\.0\/24,dhcpstart=192\.168\.2\.10/eth1,net=$subnet2_prefix\.0\/24,dhcpstart=$subnet2_prefix\.10/g" Makefile
 sed -i "s/SandyBridge/host/g" Makefile
@@ -114,12 +119,12 @@ cat ../eve.pid
 echo ========================================
 echo "Try to modify EVE config"
 echo ========================================
-cd $adam_dir || exit
+cd $adam_dir || exit 1
 UUID="$(docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":"$unused_port" device list)"
 max_retry=30
 counter=0
 until [ "$UUID" ]; do
-  [[ counter -eq $max_retry ]] && echo "Failed to add onboard!" && exit 1
+  [[ counter -eq $max_retry ]] && echo "Failed to list devices!" && exit 1
   echo "Trying again. Try #$counter"
   sleep 30
   UUID="$(docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":"$unused_port" device list)"
@@ -141,7 +146,7 @@ while true; do
     read -p "Do you want to cleanup? (y/n)" yn
     case $yn in
         [Yy]* )
-          kill `cat $tmp_dir/eve.pid`
+          kill $(cat $tmp_dir/eve.pid)
           kill $(cat $tmp_dir/adam.pid)
           sleep 5
           rm -rf $tmp_dir ; break;;
