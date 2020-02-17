@@ -3,7 +3,7 @@ if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
-DIRECTORY=$(dirname "$0")
+DIRECTORY=$(cd "$(dirname "$0")" && pwd)
 eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/giggsoff/adam.git
 memory_to_use=4096
@@ -135,8 +135,8 @@ echo ========================================
 echo "EVE device UUID:"
 echo $UUID
 echo ========================================
-sed -i "s/DEVICE_UUID/$UUID/g" run/cfg.json
-sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" run/cfg.json
+sed -i "s/DEVICE_UUID/$UUID/g" "$adam_dir"/run/cfg.json
+sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" "$adam_dir"/run/cfg.json
 docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
 echo ========================================
 echo "EVE config successfull"
