@@ -61,7 +61,7 @@ echo "Prepare and run ADAM"
 echo ========================================
 IP=$(hostname -I | cut -d' ' -f1)
 cd $adam_dir || exit
-#make build-docker
+make build-docker
 mkdir -p run/adam
 mkdir -p run/config
 cp "$config_file" run/
