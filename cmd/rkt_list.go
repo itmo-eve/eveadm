@@ -35,6 +35,11 @@ eveadm rkt list
 		if err != nil {
 			log.Fatalf("Error in get param image in %s", cmd.Name())
 		}
+		fields, err := cmd.Flags().GetString("fields")
+		if err != nil {
+			log.Fatalf("Error in get param fields in %s", cmd.Name())
+		}
+		rktctx.fields = fields
 		var envs string
 		if isImage {
 			err, args, envs = rktctx.rktListImageToCmd()
@@ -52,4 +57,5 @@ func init() {
 	rktCmd.AddCommand(rktListCmd)
 	rktListCmd.Flags().BoolVar(&rktctx.noLegend, "no-legend", false, "Suppress legend")
 	rktListCmd.Flags().BoolP("image", "i", false, "Work with images")
+	rktListCmd.Flags().String("fields", "", "Fields to return")
 }
