@@ -142,8 +142,12 @@ echo ========================================
 echo "EVE device UUID:"
 echo $UUID
 echo ========================================
-sed -i "s/DEVICE_UUID/$UUID/g" "$adam_dir"/run/cfg.json
-sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" "$adam_dir"/run/cfg.json
+
+for i in "${config_files[@]}"
+do
+  sed -i "s/DEVICE_UUID/$UUID/g" "$adam_dir"/run/"$i"
+  sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" "$adam_dir"/run/"$i"
+done
 docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
 echo ========================================
 echo "Wait for ssh"
