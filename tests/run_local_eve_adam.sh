@@ -154,7 +154,7 @@ echo "Wait for ssh"
 echo ========================================
 max_retry=10
 counter=0
-until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p $unused_port localhost 'sleep 1'; do
+until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p $ssh_port localhost 'sleep 1'; do
         [[ counter -eq $max_retry ]] && echo "Failed to ssh!" && exit 1
         echo "Trying again. Try #$counter"
         sleep 10
