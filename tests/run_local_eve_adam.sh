@@ -137,6 +137,10 @@ echo ========================================
 echo "EVE config successfull"
 echo "You can connect to node via ssh"
 echo "sudo ssh -p $ssh_port 127.0.0.1"
+echo "You can edit config in file:"
+echo "$adam_dir"/run/cfg.json
+echo "And send it to eve by running:"
+echo docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
 while true; do
     read -p "Do you want to cleanup? (y/n)" yn
     case $yn in
