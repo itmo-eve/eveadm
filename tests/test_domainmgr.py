@@ -40,16 +40,18 @@ while 1:
             #print(j.keys())
             if 'DisplayName' in j.keys():
                 if len(j['LastErr']):
-                    out = "(%30s) %s Activated: %s Error: '%s' (%s)" % (t, j['DisplayName'], j['Activated'], j['LastErr'], j['LastErrTime'])
+                    out = "(%-30s) %s Activated: %s Error: '%s' (%s)" % (t, j['DisplayName'], j['Activated'], j['LastErr'], j['LastErrTime'])
                 else:
-                    out = "(%30s) %s Activated: %s" % (t, j['DisplayName'], j['Activated'])
-                if len(sys.argv) >=3 and j["DisplayName"] == sys.argv[2]:
-                    print(out)
+                    out = "(%-30s) %s Activated: %s" % (t, j['DisplayName'], j['Activated'])
+                if len(sys.argv) >=3:
+                    if j["DisplayName"] == sys.argv[2]:
+                        print(out)
                 else:
                     print(out)
     except json.JSONDecodeError:
         pass
         #print("JSONDecodeError:", sys.exc_info())
+        #s = eve.readline().decode('utf-8')
         #print(s)
     except:
         print("ERR: '%s'" % s)
