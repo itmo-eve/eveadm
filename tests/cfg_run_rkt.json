@@ -80,7 +80,81 @@
       "id": "9ec0c1c7-7120-4685-9175-818a013f7063"
     }
   ],
-  "apps": [],
+  "apps": [
+    {
+      "uuidandversion": {
+        "uuid": "c2e4509a-630a-4e26-9963-b8795e2725bb",
+        "version": "5"
+      },
+      "fixedresources": {
+        "maxmem": 262144,
+        "vcpus": 1,
+        "bootloader": "/usr/bin/pygrub",
+        "memory": 262144,
+        "rootdev": "/dev/xvda1"
+      },
+      "interfaces": [
+        {
+          "name": "default",
+          "networkId": "6822e35f-c1b8-43ca-b344-0bbc0ece8cf9",
+          "acls": [
+            {
+              "matches": [
+                {
+                  "type": "host"
+                }
+              ],
+              "id": 1
+            },
+            {
+              "matches": [
+                {
+                  "type": "ip",
+                  "value": "0.0.0.0/0"
+                }
+              ],
+              "id": 2
+            },
+            {
+              "actions": [
+                {
+                  "portmap": true,
+                  "appPort": 22
+                }
+              ],
+              "matches": [
+                {
+                  "type": "protocol",
+                  "value": "tcp"
+                },
+                {
+                  "type": "lport",
+                  "value": "2222"
+                }
+              ],
+              "id": 3
+            }
+          ]
+        }
+      ],
+      "drives": [
+        {
+          "image": {
+            "dsId": "9ec0c1c7-7120-4685-9175-818a013f7061",
+            "uuidandversion": {
+              "uuid": "ebf2b86a-2936-43e5-9698-8216104d1fb7",
+              "version": "3"
+            },
+            "siginfo": {},
+            "iformat": 8,
+            "name": "alpine"
+          }
+        }
+      ],
+      "activate": true,
+      "displayname": "alpine-test"
+    }
+  ],
   "systemAdapterList": [
     {
       "uplink": true,

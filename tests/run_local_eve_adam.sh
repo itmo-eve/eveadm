@@ -7,6 +7,7 @@ DIRECTORY=$(cd "$(dirname "$0")" && pwd)
 eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/giggsoff/adam.git
 memory_to_use=4096
+config_files=( cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json )
 while [ -n "$1" ]
 do
 case "$1" in
@@ -22,11 +23,14 @@ done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 unused_port=$(comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
 ssh_port=$(comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
-config_file="$DIRECTORY"/cfg.json
-if [ ! -f "$config_file" ]; then
-    echo "Cannot find cfg.json"
+for i in "${config_files[@]}"
+do
+	if [ ! -f "$DIRECTORY"/"$i" ]; then
+    echo "Cannot find $i"
     exit 1
-fi
+  fi
+done
+
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -69,7 +73,10 @@ cd $adam_dir || exit 1
 make build-docker
 mkdir -p run/adam
 mkdir -p run/config
-cp "$config_file" run/
+for i in "${config_files[@]}"
+do
+  cp "$DIRECTORY"/"$i" run/
+done
 cd run/adam || exit 1
 onboarduuid=$(uuidgen)
 openssl genrsa -out rootCA.key 4096
@@ -139,13 +146,29 @@ sed -i "s/DEVICE_UUID/$UUID/g" "$adam_dir"/run/cfg.json
 sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" "$adam_dir"/run/cfg.json
 docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
 echo ========================================
+echo "Wait for ssh"
+echo ========================================
+max_retry=10
+counter=0
+until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p $unused_port localhost 'sleep 1'; do
+        [[ counter -eq $max_retry ]] && echo "Failed to ssh!" && exit 1
+        echo "Trying again. Try #$counter"
+        sleep 10
+        ((counter++))
+done
+echo ========================================
 echo "EVE config successfull"
 echo "You can connect to node via ssh"
-echo "sudo ssh -p $ssh_port 127.0.0.1"
+echo "sudo ssh -p $ssh_port localhost"
 echo "You can edit config in file:"
 echo "$adam_dir"/run/cfg.json
 echo "And send it to eve by running:"
 echo docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
+echo "Or you can run above command with files:"
+for i in "${config_files[@]}"
+do
+  echo "... ./run/$i"
+done
 while true; do
     read -p "Do you want to cleanup? (y/n)" yn
     case $yn in
