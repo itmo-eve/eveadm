@@ -80,7 +80,82 @@
       "id": "9ec0c1c7-7120-4685-9175-818a013f7063"
     }
   ],
-  "apps": [],
+  "apps": [
+    {
+      "uuidandversion": {
+        "uuid": "c2e4509a-630a-4e26-9963-b8795e2725b3",
+        "version": "5"
+      },
+      "fixedresources": {
+        "maxmem": 262144,
+        "vcpus": 1,
+        "bootloader": "/usr/bin/pygrub",
+        "memory": 262144,
+        "rootdev": "/dev/xvda1"
+      },
+      "interfaces": [
+        {
+          "name": "default",
+          "networkId": "6822e35f-c1b8-43ca-b344-0bbc0ece8cf9",
+          "acls": [
+            {
+              "matches": [
+                {
+                  "type": "host"
+                }
+              ],
+              "id": 1
+            },
+            {
+              "matches": [
+                {
+                  "type": "ip",
+                  "value": "0.0.0.0/0"
+                }
+              ],
+              "id": 2
+            },
+            {
+              "actions": [
+                {
+                  "portmap": true,
+                  "appPort": 22
+                }
+              ],
+              "matches": [
+                {
+                  "type": "protocol",
+                  "value": "tcp"
+                },
+                {
+                  "type": "lport",
+                  "value": "2223"
+                }
+              ],
+              "id": 3
+            }
+          ]
+        }
+      ],
+      "drives": [
+        {
+          "image": {
+            "dsId": "9ec0c1c7-7120-4685-9175-818a013f7063",
+            "uuidandversion": {
+              "uuid": "ebf2b86a-2936-43e5-9698-8216104d1fb5",
+              "version": "3"
+            },
+            "sha256": "a8dd75ecffd4cdd96072d60c2237b448e0c8b2bc94d57f10fdbc8c481d9005b8",
+            "siginfo": {},
+            "iformat": 3,
+            "name": "0.4.0/cirros-0.4.0-x86_64-disk.img"
+          }
+        }
+      ],
+      "activate": false,
+      "displayname": "cirros-testing"
+    }
+  ],
   "systemAdapterList": [
     {
       "uplink": true,
