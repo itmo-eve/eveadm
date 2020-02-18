@@ -5,7 +5,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 DIRECTORY=$(cd "$(dirname "$0")" && pwd)
 eve_repo=https://github.com/itmo-eve/eve.git
-adam_repo=https://github.com/giggsoff/adam.git
+adam_repo=https://github.com/itmo-eve/adam.git
 memory_to_use=4096
 config_files=( cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json )
 while [ -n "$1" ]
@@ -157,7 +157,7 @@ counter=0
 until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p $ssh_port localhost 'sleep 1'; do
         [[ counter -eq $max_retry ]] && echo "Failed to ssh!" && exit 1
         echo "Trying again. Try #$counter"
-        sleep 10
+        sleep 15
         ((counter++))
 done
 echo ========================================
