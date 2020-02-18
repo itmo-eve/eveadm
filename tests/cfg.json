@@ -68,8 +68,8 @@
     {
       "dType": 5,
       "fqdn": "docker://docker.io",
-      "password": "********",
-      "apiKey": "********",
+      "password": "",
+      "apiKey": "",
       "id": "9ec0c1c7-7120-4685-9175-818a013f7061"
     },
     {
@@ -147,7 +147,7 @@
             },
             "siginfo": {},
             "iformat": 8,
-            "name": "library/alpine"
+            "name": "alpine"
           }
         }
       ],
