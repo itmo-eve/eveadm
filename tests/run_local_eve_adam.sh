@@ -120,7 +120,7 @@ sed -i "s/eth1,net=192\.168\.2\.0\/24,dhcpstart=192\.168\.2\.10/eth1,net=$subnet
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/-m 4096/-m $memory_to_use/g" Makefile
 sed -i "s/mon:stdio/telnet:localhost:$telnet_port,server,nowait/g" Makefile
-make CONF_DIR=../adam/run/config/ live
+make CONF_DIR=../adam/run/config/ live || { echo "Failed to build EVE" ; exit 1; }
 nohup make ACCEL=true SSH_PORT="$ssh_port" CONF_DIR=../adam/run/config/ run >"$tmp_dir"/eve.log 2>&1 &
 echo $! >../eve.pid
 echo ========================================
