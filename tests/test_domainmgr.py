@@ -8,7 +8,7 @@ if len(sys.argv) < 2:
     print("Usage: %s port [app-name]" % sys.argv[0])
     sys.exit()
 
-eve=spawn('ssh -p %s localhost' % sys.argv[1], timeout=None)
+eve=spawn('ssh -o StrictHostKeyChecking=no -p %s localhost' % sys.argv[1], timeout=None)
 eve.sendline('')
 eve.expect('\(ns: pillar\) (.*):/#')
 
