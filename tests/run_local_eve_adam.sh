@@ -7,25 +7,28 @@ DIRECTORY=$(cd "$(dirname "$0")" && pwd)
 eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/itmo-eve/adam.git
 memory_to_use=4096
-config_files=( cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json )
-while [ -n "$1" ]
-do
-case "$1" in
--m) memory_to_use="$2"
-echo "Use with memory $memory_to_use"
-shift ;;
---) shift
-break ;;
-*) echo "$1 is not an option";;
-esac
-shift
+config_files=(cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json)
+while [ -n "$1" ]; do
+  case "$1" in
+  -m)
+    memory_to_use="$2"
+    echo "Use with memory $memory_to_use"
+    shift
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *) echo "$1 is not an option" ;;
+  esac
+  shift
 done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 unused_port=$(comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
 ssh_port=$(comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
-for i in "${config_files[@]}"
-do
-	if [ ! -f "$DIRECTORY"/"$i" ]; then
+telnet_port=$(comm -23 <(seq 49452 49552 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
+for i in "${config_files[@]}"; do
+  if [ ! -f "$DIRECTORY"/"$i" ]; then
     echo "Cannot find $i"
     exit 1
   fi
@@ -55,7 +58,7 @@ eve_dir="$tmp_dir"/eve
 apt update
 apt upgrade -y
 snap install --classic go
-apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq
+apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq telnet
 touch ~/.rnd
 cd "$tmp_dir" || exit 1
 git clone $eve_repo
@@ -63,7 +66,7 @@ git clone $adam_repo
 echo ========================================
 echo "Generate keypair for ssh (no overwrite if exists)"
 echo ========================================
-ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "" <<< n
+ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "" <<<n
 echo
 echo ========================================
 echo "Prepare and run ADAM"
@@ -73,8 +76,7 @@ cd $adam_dir || exit 1
 make build-docker
 mkdir -p run/adam
 mkdir -p run/config
-for i in "${config_files[@]}"
-do
+for i in "${config_files[@]}"; do
   cp "$DIRECTORY"/"$i" run/
 done
 cd run/adam || exit 1
@@ -117,8 +119,9 @@ sed -i "s/eth0,net=192\.168\.1\.0\/24,dhcpstart=192\.168\.1\.10/eth0,net=$subnet
 sed -i "s/eth1,net=192\.168\.2\.0\/24,dhcpstart=192\.168\.2\.10/eth1,net=$subnet2_prefix\.0\/24,dhcpstart=$subnet2_prefix\.10/g" Makefile
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/-m 4096/-m $memory_to_use/g" Makefile
-make CONF_DIR=../adam/run/config/ live
-nohup make ACCEL=true SSH_PORT=$ssh_port CONF_DIR=../adam/run/config/ run >$tmp_dir/eve.log 2>&1 &
+sed -i "s/mon:stdio/telnet:localhost:$telnet_port,server,nowait/g" Makefile
+make CONF_DIR=../adam/run/config/ live || { echo "Failed to build EVE" ; exit 1; }
+nohup make ACCEL=true SSH_PORT="$ssh_port" CONF_DIR=../adam/run/config/ run >"$tmp_dir"/eve.log 2>&1 &
 echo $! >../eve.pid
 echo ========================================
 echo "EVE pid:"
@@ -126,16 +129,42 @@ cat ../eve.pid
 echo ========================================
 echo "Try to modify EVE config"
 echo ========================================
+echo "You can connect to eve via telnet:"
+echo "telnet localhost $telnet_port"
+echo ========================================
 cd $adam_dir || exit 1
 UUID="$(docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":"$unused_port" device list)"
 max_retry=30
-counter=0
-until [ "$UUID" ]; do
-  [[ counter -eq $max_retry ]] && echo "Failed to list devices!" && exit 1
-  echo "Trying again. Try #$counter"
-  sleep 30
-  UUID="$(docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":"$unused_port" device list)"
-  ((counter++))
+to_exit=0
+while [ "$to_exit" -eq 0 ]; do
+  counter=0
+  until [ "$UUID" ]; do
+    [[ counter -eq $max_retry ]] && to_exit=1 && break
+    echo "Trying again. Try #$counter"
+    sleep 35
+    UUID="$(docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":"$unused_port" device list)"
+    ((counter++))
+  done
+  if [ "$to_exit" -eq "1" ]; then
+    echo "Failed to list devices!"
+    echo ========================================
+    echo "You can connect to eve via telnet:"
+    echo "telnet localhost $telnet_port"
+    echo ========================================
+    while true; do
+      read -p "Do you want to try again? (y/n)" yn
+      case $yn in
+      [Yy]*)
+        to_exit=0
+        break
+        ;;
+      [Nn]*) exit 1 ;;
+      *) echo "Please answer y or n." ;;
+      esac
+    done
+  else
+    break
+  fi
 done
 UUID=$(echo "$UUID" | xargs)
 echo ========================================
@@ -143,8 +172,7 @@ echo "EVE device UUID:"
 echo $UUID
 echo ========================================
 
-for i in "${config_files[@]}"
-do
+for i in "${config_files[@]}"; do
   sed -i "s/DEVICE_UUID/$UUID/g" "$adam_dir"/run/"$i"
   sed -i -e "s/SSH_KEY/$(sed 's:/:\\/:g' /root/.ssh/id_rsa.pub)/" "$adam_dir"/run/"$i"
 done
@@ -153,35 +181,61 @@ echo ========================================
 echo "Wait for ssh"
 echo ========================================
 max_retry=10
-counter=0
-until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p $ssh_port localhost 'sleep 1'; do
-        [[ counter -eq $max_retry ]] && echo "Failed to ssh!" && exit 1
-        echo "Trying again. Try #$counter"
-        sleep 15
-        ((counter++))
+to_exit=0
+while [ "$to_exit" -eq 0 ]; do
+  counter=0
+  until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 -p "$ssh_port" localhost 'sleep 1'; do
+    [[ counter -eq $max_retry ]] && to_exit=1 && break
+    echo "Trying again. Try #$counter"
+    sleep 15
+    ((counter++))
+  done
+  if [ "$to_exit" -eq "1" ]; then
+    echo "Failed to ssh!"
+    echo ========================================
+    echo "You can connect to eve via telnet:"
+    echo "telnet localhost $telnet_port"
+    echo ========================================
+    while true; do
+      read -p "Do you want to try again? (y/n)" yn
+      case $yn in
+      [Yy]*)
+        to_exit=0
+        break
+        ;;
+      [Nn]*) exit 1 ;;
+      *) echo "Please answer y or n." ;;
+      esac
+    done
+  else
+    break
+  fi
 done
 echo ========================================
 echo "EVE config successfull"
 echo "You can connect to node via ssh"
 echo "sudo ssh -p $ssh_port localhost"
+echo "Or via telnet:"
+echo "telnet localhost $telnet_port"
 echo "You can edit config in file:"
 echo "$adam_dir"/run/cfg.json
 echo "And send it to eve by running:"
 echo docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https://"$IP":$unused_port device config set --uuid "$UUID" --config-path ./run/cfg.json
 echo "Or you can run above command with files:"
-for i in "${config_files[@]}"
-do
-  echo "... ./run/$i"
+for i in "${config_files[@]}"; do
+  echo -e "\t./run/$i"
 done
 while true; do
-    read -p "Do you want to cleanup? (y/n)" yn
-    case $yn in
-        [Yy]* )
-          kill $(cat $tmp_dir/eve.pid)
-          kill $(cat $tmp_dir/adam.pid)
-          sleep 5
-          rm -rf $tmp_dir ; break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer y or n.";;
-    esac
+  read -p "Do you want to cleanup? (y/n)" yn
+  case $yn in
+  [Yy]*)
+    kill $(cat $tmp_dir/eve.pid)
+    kill $(cat $tmp_dir/adam.pid)
+    sleep 5
+    rm -rf $tmp_dir
+    break
+    ;;
+  [Nn]*) exit ;;
+  *) echo "Please answer y or n." ;;
+  esac
 done

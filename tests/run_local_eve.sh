@@ -19,6 +19,7 @@ shift
 done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 ssh_port=`comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
+telnet_port=$(comm -23 <(seq 49452 49552 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -26,7 +27,7 @@ eve_dir="$tmp_dir"/eve
 apt update
 apt upgrade -y
 snap install --classic go
-apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq
+apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq telnet
 touch ~/.rnd
 cd "$tmp_dir" || exit
 git clone $eve_repo
@@ -49,7 +50,8 @@ cd $eve_dir||exit
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/31415926/$sn/g" Makefile
 sed -i "s/-m 4096/-m $memory_to_use/g" Makefile
-make live
+sed -i "s/mon:stdio/telnet:localhost:$telnet_port,server,nowait/g" Makefile
+make live || { echo "Failed to build EVE" ; exit 1; }
 nohup make ACCEL=true SSH_PORT=$ssh_port run >$tmp_dir/eve.log 2>&1 &
 echo $! >../eve.pid
 echo ========================================
@@ -65,6 +67,8 @@ echo "$sn"
 echo "in zedcloud.zededa.net"
 echo "You can connect to node via ssh"
 echo "sudo ssh -p $ssh_port 127.0.0.1"
+echo "Or via telnet:"
+echo "telnet localhost $telnet_port"
 while true; do
     read -p "Do you want to cleanup? (y/n)" yn
     case $yn in
