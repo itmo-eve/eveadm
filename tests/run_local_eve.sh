@@ -1,25 +1,36 @@
 #!/bin/bash
+
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit
 fi
+
 eve_repo=https://github.com/itmo-eve/eve.git
 memory_to_use=4096
-while [ -n "$1" ]
+
+usage () {
+ echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag]"
+ exit
+}
+
+while getopts 'hm:t:u:' c
 do
-case "$1" in
--m) memory_to_use="$2"
-echo "Use with memory $memory_to_use"
-shift ;;
---) shift
-break ;;
-*) echo "$1 is not an option";;
-esac
-shift
+ case $c in
+  m) memory_to_use=$OPTARG
+     echo "Use with memory $memory_to_use" ;;
+  t) tag_to_use=$OPTARG
+     echo "Use with tag $tag_to_use" ;;
+  u) eve_repo=$OPTARG
+     echo "Use with repository $eve_rpo" ;;
+  h) usage ;;
+  *) usage ;; 
+ esac
 done
+
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 ssh_port=`comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1`
 telnet_port=$(comm -23 <(seq 49452 49552 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
+
 echo ========================================
 echo "Temp directory for test: $tmp_dir"
 echo ========================================
@@ -30,22 +41,28 @@ snap install --classic go
 apt-get install -y git make docker.io qemu-system-x86 qemu-utils openssl jq telnet
 touch ~/.rnd
 cd "$tmp_dir" || exit
-git clone $eve_repo
+
 echo ========================================
 echo "Generate keypair for ssh (no overwrite if exists)"
 echo ========================================
 ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "" <<< n
+
 echo
 echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
+
+git clone $eve_repo
 cd $eve_dir||exit
+[ "$tag_to_use" ] && git checkout $tag_to_use
+
 cd conf||exit
 yes | cp -f /root/.ssh/id_rsa.pub authorized_keys
 onboarduuid=$(uuidgen)
 sn=$(head -200 /dev/urandom | cksum | cut -f1 -d " "|fold -w 8|head -n 1)
 openssl ecparam -name prime256v1 -genkey -noout -out onboard.key.pem
 openssl req -x509 -new -nodes -key onboard.key.pem -sha256 -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=$onboarduuid" -days 1024 -out onboard.cert.pem
+
 cd $eve_dir||exit
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/31415926/$sn/g" Makefile
