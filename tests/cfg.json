@@ -84,17 +84,13 @@
   "systemAdapterList": [
     {
       "uplink": true,
-      "freeUplink": true,
       "name": "eth0",
-      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d58",
-      "lowerLayerName": "eth0"
+      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d58"
     },
     {
       "uplink": true,
-      "freeUplink": true,
       "name": "eth1",
-      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d59",
-      "lowerLayerName": "eth1"
+      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d59"
     }
   ],
   "networkInstances": [
@@ -122,5 +118,7 @@
       "ipType": 1,
       "instType": 2
     }
-  ]
+  ],
+  "manufacturer": "ZedVirtualDevice",
+  "productName": "ZedVirtual-4G"
 }
