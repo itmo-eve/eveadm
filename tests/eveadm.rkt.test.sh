@@ -8,11 +8,10 @@ curdir=$(realpath $0)
 echo curdir=$curdir
 curdir=$(dirname $curdir)
 echo curdir=$curdir
-home_dir=/tmp/pods_test
-echo "$home_dir"
 EVEADM=$curdir/../eveadm
 echo EVEADM=$EVEADM
 home_dir=/tmp/pods_test
+echo "$home_dir"
 echo rm -rf "$home_dir"
 rm -rf "$home_dir"
 echo mkdir "$home_dir"
