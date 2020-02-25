@@ -9,11 +9,12 @@ eve_repo=https://github.com/itmo-eve/eve.git
 memory_to_use=4096
 
 usage () {
- echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag]"
+ echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag] [-r]"
+ echo -e "-r\tflag for rebuild eve-pillar"
  exit
 }
 
-while getopts 'hm:t:u:' c
+while getopts 'hrm:t:u:' c
 do
  case $c in
   m) memory_to_use=$OPTARG
@@ -22,6 +23,7 @@ do
      echo "Use with tag $tag_to_use" ;;
   u) eve_repo=$OPTARG
      echo "Use with repository $eve_repo" ;;
+  r) rebuild=1 ;;
   h) usage ;;
   *) usage ;; 
  esac
@@ -55,6 +57,7 @@ echo ========================================
 git clone $eve_repo
 cd $eve_dir||exit
 [ "$tag_to_use" ] && git checkout $tag_to_use
+[ "$rebuild" ] && make eve-pillar
 
 cd conf||exit
 yes | cp -f /root/.ssh/id_rsa.pub authorized_keys
