@@ -83,7 +83,7 @@ echo "and Serial Number"
 echo "$sn"
 echo "in zedcloud.zededa.net"
 echo "You can connect to node via ssh"
-echo "sudo ssh -p $ssh_port 127.0.0.1"
+echo "sudo ssh -p $ssh_port localhost"
 echo "Or via telnet:"
 echo "telnet localhost $telnet_port"
 while true; do
