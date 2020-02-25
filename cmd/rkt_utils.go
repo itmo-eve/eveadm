@@ -62,6 +62,8 @@ type RKTContext struct {
 	noOverlay       bool
 	stage1Type      string
 	force           bool
+	gc              bool
+	gcGracePeriod   string
 	format          string
 }
 
@@ -207,6 +209,28 @@ func (ctx RKTContext) rktInfoToCmd() (err error, args []string, envs string) {
 	envs = ""
 	err = nil
 	return
+}
+func (ctx RKTContext) rktDeleteGC(isImage bool) (err error, args []string, envs string) {
+	args = []string{"rkt"}
+	if isImage {
+		args = append(args, "image")
+	}
+	args = append(args, "gc")
+	if ctx.dir != "" {
+		args = append(args, "--dir="+ctx.dir)
+	}
+	if ctx.gcGracePeriod != "" {
+		args = append(args, "--grace-period="+ctx.gcGracePeriod)
+	}
+	envs = ""
+	err = nil
+	return
+}
+func (ctx RKTContext) rktDeleteGCImageToCmd() (err error, args []string, envs string) {
+	return rktctx.rktDeleteGC(true)
+}
+func (ctx RKTContext) rktDeleteGCToCmd() (err error, args []string, envs string) {
+	return rktctx.rktDeleteGC(false)
 }
 func (ctx RKTContext) rktDeleteToCmd() (err error, args []string, envs string) {
 	if ctx.containerUUID == "" {
