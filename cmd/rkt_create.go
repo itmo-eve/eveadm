@@ -57,6 +57,7 @@ func init() {
 	rktCreateCmd.Flags().StringVar(&rktctx.uuidFile, "uuid-file-save", "", "File to save uuid")
 	rktCreateCmd.Flags().StringVar(&rktctx.xenCfgFilename, "xen-cfg-filename", "", "File with xen cfg for stage1")
 	rktCreateCmd.Flags().StringVar(&rktctx.stage1Path, "stage1-path", "/usr/sbin/stage1-xen.aci", "Stage1 path")
+	rktCreateCmd.Flags().StringVar(&rktctx.stage2MP, "stage2_mnt_pts", "", "Stage2 mount points file")
 	rktCreateCmd.Flags().Var(&rktctx.flagExplicitEnv, "set-env", "environment variable to set for all the apps in the form key=value")
 	//Workaround to start in Ubuntu
 	rktCreateCmd.Flags().BoolVar(&rktctx.noOverlay, "no-overlay", false, "Run without overlay")
