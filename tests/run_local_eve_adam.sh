@@ -8,20 +8,19 @@ eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/itmo-eve/adam.git
 memory_to_use=4096
 config_files=(cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json)
-while [ -n "$1" ]; do
-  case "$1" in
-  -m)
-    memory_to_use="$2"
-    echo "Use with memory $memory_to_use"
-    shift
-    ;;
-  --)
-    shift
-    break
-    ;;
-  *) echo "$1 is not an option" ;;
-  esac
-  shift
+while getopts 'hrm:t:u:' c
+do
+ case $c in
+  m) memory_to_use=$OPTARG
+     echo "Use with memory $memory_to_use" ;;
+  t) tag_to_use=$OPTARG
+     echo "Use with tag $tag_to_use" ;;
+  u) eve_repo=$OPTARG
+     echo "Use with repository $eve_repo" ;;
+  r) rebuild=1 ;;
+  h) usage ;;
+  *) usage ;;
+ esac
 done
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 unused_port=$(comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
@@ -115,6 +114,8 @@ echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
 cd $eve_dir || exit 1
+[ "$tag_to_use" ] && git checkout $tag_to_use
+[ "$rebuild" ] && make eve-pillar
 sed -i "s/eth0,net=192\.168\.1\.0\/24,dhcpstart=192\.168\.1\.10/eth0,net=$subnet1_prefix\.0\/24,dhcpstart=$subnet1_prefix\.10/g" Makefile
 sed -i "s/eth1,net=192\.168\.2\.0\/24,dhcpstart=192\.168\.2\.10/eth1,net=$subnet2_prefix\.0\/24,dhcpstart=$subnet2_prefix\.10/g" Makefile
 sed -i "s/SandyBridge/host/g" Makefile
