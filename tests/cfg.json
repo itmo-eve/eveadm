@@ -84,17 +84,13 @@
   "systemAdapterList": [
     {
       "uplink": true,
-      "freeUplink": true,
       "name": "eth0",
-      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d58",
-      "lowerLayerName": "eth0"
+      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d58"
     },
     {
       "uplink": true,
-      "freeUplink": true,
       "name": "eth1",
-      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d59",
-      "lowerLayerName": "eth1"
+      "networkUUID": "2e6038c1-ece6-4ffd-b95b-a7302c219d59"
     }
   ],
   "networkInstances": [
@@ -122,5 +118,58 @@
       "ipType": 1,
       "instType": 2
     }
-  ]
+  ],
+  "lispInfo": {
+    "LispMapServers": [
+      {
+        "NameOrIp": "zedcontrol.zededa.net",
+        "Credential": "zededa-lispers.net"
+      }
+    ],
+    "LispInstance": 1000,
+    "EID": "fd5b:8f21:c6b2:2c14:1d41:bd5f:bf40:d6c4",
+    "EIDHashLen": 120,
+    "ZedServers": [
+      {
+        "HostName": "zedcontrol",
+        "EID": [
+          "fd45:efca:3607:4c1d:eace:a947:3464:d21e"
+        ]
+      },
+      {
+        "HostName": "zedlake",
+        "EID": [
+          "fd45:efca:3607:4c1d:eace:a947:3464:d21e"
+        ]
+      },
+      {
+        "HostName": "zedbobo",
+        "EID": [
+          "fdd5:79bf:7261:d9df:aea1:c8d2:842d:b99b"
+        ]
+      },
+      {
+        "HostName": "hikey02",
+        "EID": [
+          "fdfd:ceef:cf85:7e40:6d4f:2181:ba06:e668"
+        ]
+      },
+      {
+        "HostName": "hikey04",
+        "EID": [
+          "fd12:df08:d686:602d:2145:f7cf:2382:1683"
+        ]
+      },
+      {
+        "HostName": "hikey05",
+        "EID": [
+          "fd81:abc5:7d7e:bcd7:40d9:df2c:be4b:600"
+        ]
+      }
+    ],
+    "EidAllocationPrefix": "/Q==",
+    "EidAllocationPrefixLen": 8
+  },
+  "manufacturer": "ZedVirtualDevice",
+  "productName": "ZedVirtual-4G"
 }

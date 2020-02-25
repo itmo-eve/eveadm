@@ -2,7 +2,48 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 )
+
+type kvMap struct {
+	mapping map[string]string
+}
+
+func (e *kvMap) Set(s string) error {
+	if e.mapping == nil {
+		e.mapping = make(map[string]string)
+	}
+	pair := strings.SplitN(s, "=", 2)
+	if len(pair) != 2 {
+		return fmt.Errorf("must be specified as key=value")
+	}
+	if _, exists := e.mapping[pair[0]]; exists {
+		return fmt.Errorf("key %q already set", pair[0])
+	}
+	e.mapping[pair[0]] = pair[1]
+	return nil
+}
+
+func (e *kvMap) IsEmpty() bool {
+	return len(e.mapping) == 0
+}
+
+func (e *kvMap) String() string {
+	return strings.Join(e.Strings(), "\n")
+}
+
+func (e *kvMap) Strings() []string {
+	var env []string
+	for n, v := range e.mapping {
+		env = append(env, n+"="+v)
+	}
+	return env
+}
+
+func (e *kvMap) Type() string {
+	return "kvMap"
+}
 
 type RKTContext struct {
 	dir             string
@@ -14,6 +55,8 @@ type RKTContext struct {
 	imageUrl        string
 	uuidFile        string
 	xenCfgFilename  string
+	stage2MP        string
+	flagExplicitEnv kvMap
 	runPaused       bool
 	stage1Path      string
 	noOverlay       bool
@@ -89,6 +132,9 @@ func (ctx RKTContext) rktCreateToCmd() (err error, args []string, envs string) {
 	if ctx.stage1Path != "" {
 		args = append(args, "--stage1-path="+ctx.stage1Path)
 	}
+	if ctx.uuidFile != "" {
+		args = append(args, "--uuid-file-save="+ctx.uuidFile)
+	}
 	if ctx.noOverlay {
 		args = append(args, "--no-overlay")
 	}
@@ -97,6 +143,15 @@ func (ctx RKTContext) rktCreateToCmd() (err error, args []string, envs string) {
 	}
 	if ctx.xenCfgFilename != "" {
 		envs += " STAGE1_SEED_XL_CFG=" + ctx.xenCfgFilename
+	}
+	if ctx.stage2MP != "" {
+		envs += " STAGE2_MNT_PTS=" + ctx.stage2MP
+	}
+	explicitEnv := ctx.flagExplicitEnv.Strings()
+	if len(explicitEnv) > 0 {
+		for _, el := range explicitEnv {
+			args = append(args, "--set-env="+el)
+		}
 	}
 	err = nil
 	return

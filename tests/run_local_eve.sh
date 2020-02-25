@@ -21,7 +21,7 @@ do
   t) tag_to_use=$OPTARG
      echo "Use with tag $tag_to_use" ;;
   u) eve_repo=$OPTARG
-     echo "Use with repository $eve_rpo" ;;
+     echo "Use with repository $eve_repo" ;;
   h) usage ;;
   *) usage ;; 
  esac
@@ -64,6 +64,7 @@ openssl ecparam -name prime256v1 -genkey -noout -out onboard.key.pem
 openssl req -x509 -new -nodes -key onboard.key.pem -sha256 -subj "/C=RU/ST=SPB/O=MyOrg, Inc./CN=$onboarduuid" -days 1024 -out onboard.cert.pem
 
 cd $eve_dir||exit
+sed -i "s/zedcloud.alpha.zededa.net/zedcloud.zededa.net/g" conf/server
 sed -i "s/SandyBridge/host/g" Makefile
 sed -i "s/31415926/$sn/g" Makefile
 sed -i "s/-m 4096/-m $memory_to_use/g" Makefile
