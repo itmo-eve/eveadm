@@ -8,6 +8,13 @@ eve_repo=https://github.com/itmo-eve/eve.git
 adam_repo=https://github.com/itmo-eve/adam.git
 memory_to_use=4096
 config_files=(cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json)
+
+usage () {
+ echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag] [-r]"
+ echo -e "-r\tflag for rebuild eve-pillar"
+ exit
+}
+
 while getopts 'hrm:t:u:' c
 do
  case $c in

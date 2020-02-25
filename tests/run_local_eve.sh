@@ -9,7 +9,8 @@ eve_repo=https://github.com/itmo-eve/eve.git
 memory_to_use=4096
 
 usage () {
- echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag]"
+ echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag] [-r]"
+ echo -e "-r\tflag for rebuild eve-pillar"
  exit
 }
 
