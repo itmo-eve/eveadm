@@ -3,7 +3,9 @@
 import sys 
 from pexpect import *
 import json
+import re
 
+apps={}
 
 def xl_list(eve):
     vms = []
@@ -56,7 +58,8 @@ def log_json(data):
         if j["file"].find("/pillar/cmd/domainmgr/domainmgr.go") == 0 and func in funcs.keys():
             msg = j["msg"]
             time = j['time']
-            out = funcs[func](func, msg, time)
+            level = j['level']
+            out = funcs[func](func, level, msg, time)
             return(out)
     except json.JSONDecodeError:
         #print("JSONDecodeError:", sys.exc_info())
@@ -68,18 +71,85 @@ def log_json(data):
         print(sys.exc_info())
         sys.exit()
 
-def info(name, msg, time):
-    return("(%-30s) %s: %s" % (time, name, msg))
+def add_app(name):
+    if not name in apps:
+        apps[name] = {}
+        
+def handleCreate(name, level, msg, time):
+    res = re.search("handleCreate\(\{.*\}\) DONE for (.*)", msg)
+    if res:
+        app = res.group(1)
+        add_app(app)
+        print("%s: %s" % (name, app))
+        apps[app]['status'] = "created"
+        apps[app]['active'] = 0
+        return("(%-30s) [%s] '%s' created" % (time, level, app))
+
+def doActivate(name, level, msg, time):
+    res = re.search("DomainCreate for (.*)\.\d: (.*)", msg)
+    if res:
+        app = res.group(1)
+        add_app(app)
+        print("%s: %s" % (name, app))
+        msg = res.group(2)
+        apps[app]['message'] = msg
+        return("(%-30s) [%s] %s message: %s" % (time, level, app, msg))
+
+def doActivateTail(name, level, msg, time):
+    res = re.search("created domainID \d* for (.*)\.\d", msg)
+    if res:
+        app = res.group(1)
+        add_app(app)
+        print("%s: %s" % (name, app))
+        for d in xl_list(evesh):
+            if d["name"].find(app) == 0:
+                apps[app]['active'] = 1
+                return("(%-30s) [%s] '%s' activated" % (time, level, app))
+
+def doInactivate(name, level, msg, time):
+    res = re.search("doInactivate\(\{.*\}\) done for (.*)", msg)
+    if res:
+        app = res.group(1)
+        add_app(app)
+        print("%s: %s" % (name, app))
+        apps[app]['active'] = 0
+        for d in xl_list(evesh):
+            if d["name"].find(app) == 0:
+                apps[app]['active'] = 1
+        if apps[app]['active'] == 0:
+            return("(%-30s) [%s] '%s' deactivated" % (time, level, app))
+
+def handleDelete(name, level, msg, time):
+    res = re.search("handleDelete\(\{.*\}\) DONE for (.*)", msg)
+    if res:
+        app = res.group(1)
+        add_app(app)
+        print("%s: %s" % (name, app))
+        for d in xl_list(evesh):
+            if d["name"].find(app) == 0:
+                app = None
+        if app:
+            del apps[app]
+            return("(%-30s) [%s] '%s' deleted" % (time, level, app))
+
+def info(name, level, msg, time):
+    return("(%-30s) [%s] %s: %s" % (time, level, name, msg))
 
 funcs = {
-    "domainmgr.handleCreate": info,
-    "domainmgr.doActivate": info,
-    "domainmgr.doActivateTail": info,
-    "domainmgr.doInactivate": info,
-    "domainmgr.DomainDestroy": info,
-    "domainmgr.handleDelete": info,
-    "domainmgr.handleModify": info,
-    "domainmgr.xlDomid": info
+#    "domainmgr.DomainCreate": info,
+#    "domainmgr.handleCreate": info,
+    "domainmgr.handleCreate": handleCreate,
+#    "domainmgr.doActivate": info,
+    "domainmgr.doActivate": doActivate,
+#    "domainmgr.doActivateTail": info,
+    "domainmgr.doActivateTail": doActivateTail,
+#    "domainmgr.doInactivate": info,
+    "domainmgr.doInactivate": doInactivate,
+#    "domainmgr.DomainDestroy": info,
+#    "domainmgr.handleDelete": info,
+    "domainmgr.handleDelete": handleDelete,
+#    "domainmgr.handleModify": info,
+#    "domainmgr.xlDomid": info
     }
 
 if __name__ == '__main__':
@@ -95,5 +165,5 @@ if __name__ == '__main__':
         s = log_json(eve.readline().decode('utf-8'))
         if s:
             print(s)
-            vms = xl_list(evesh)
-            print("xl list: %s" % vms)
+            #vms = xl_list(evesh)
+            #print("xl list: %s" % vms)
