@@ -12,7 +12,9 @@ Flags:
   -i, --image                     Work with images
       --no-overlay                Run without overlay
       --paused                    Run paused (default true)
+      --set-env kvMap             environment variable to set for all the apps in the form key=value
       --stage1-path string        Stage1 path (default "/usr/sbin/stage1-xen.aci")
+      --stage2-mnt-pts string     Stage2 mount points file
       --uuid-file-save string     File to save uuid
       --xen-cfg-filename string   File with xen cfg for stage1
 

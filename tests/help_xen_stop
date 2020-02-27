@@ -6,7 +6,8 @@ Usage:
   eveadm xen stop [flags]
 
 Flags:
-  -h, --help   help for stop
+  -f, --force   Force stop
+  -h, --help    help for stop
 
 Global Flags:
       --config string             config file (default is $HOME/.eveadm.yaml)

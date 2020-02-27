@@ -20,6 +20,8 @@ var tests = map[string][]string {
         "tests/rkt_create-h": []string {"rkt", "create", "-h"},
         "tests/help_rkt_delete": []string {"help", "rkt", "delete"},
         "tests/rkt_delete-h": []string {"rkt", "delete", "-h"},
+        "tests/help_rkt_delete_gc": []string {"help", "rkt", "delete", "gc"},
+        "tests/rkt_delete_gc-h": []string {"rkt", "delete", "gc", "-h"},
         "tests/help_rkt_info": []string {"help", "rkt", "info"},
         "tests/rkt_info-h": []string {"rkt", "info", "-h"},
         "tests/help_rkt_list": []string {"help", "rkt", "list"},

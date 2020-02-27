@@ -4,7 +4,9 @@ eveadm: *.go cmd/*.go
 install: eveadm 
 	go install github.com/itmo-eve/eveadm/
 
-test: test_help test_func test_rkt test_xen
+test: test_help test_func
+
+test_ext: test_rkt test_xen
 
 test_help:
 	go test test_utils.go help_test.go

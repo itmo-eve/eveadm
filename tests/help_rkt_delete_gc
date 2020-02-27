@@ -1,17 +1,15 @@
 
-Run shell command with arguments in 'list' action on 'rkt' mode. For example:
+Run shell command with arguments in 'gc' action on 'rkt delete' mode. For example:
 
-eveadm rkt list --image
-eveadm rkt list
+eveadm rkt delete gc
 
 Usage:
-  eveadm rkt list [flags]
+  eveadm rkt delete gc [flags]
 
 Flags:
-      --fields string   Fields to return
-  -h, --help            help for list
-  -i, --image           Work with images
-      --no-legend       Suppress legend
+      --grace-period string   Garbage grace period
+  -h, --help                  help for gc
+  -i, --image                 Work with images
 
 Global Flags:
       --config string             config file (default is $HOME/.eveadm.yaml)
