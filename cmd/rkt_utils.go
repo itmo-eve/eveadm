@@ -65,6 +65,9 @@ type RKTContext struct {
 	gc              bool
 	gcGracePeriod   string
 	format          string
+	name            string
+	quiet           bool
+	prepareName     string
 }
 
 var rktctx RKTContext
@@ -103,7 +106,35 @@ func (ctx RKTContext) rktListImageToCmd() (err error, args []string, envs string
 	err = nil
 	return
 }
-
+func (ctx RKTContext) rktPrepareImageToCmd() (err error, args []string, envs string) {
+	if ctx.imageUUID == "" {
+		return errors.New("No imageUUID in args"), nil, ""
+	}
+	args = []string{"rkt"}
+	if ctx.dir != "" {
+		args = append(args, "--dir="+ctx.dir)
+	}
+	if ctx.insecureOptions != "" {
+		args = append(args, "--insecure-options="+ctx.insecureOptions)
+	}
+	args = append(args, "prepare")
+	args = append(args, ctx.imageUUID)
+	if ctx.stage1Path != "" {
+		args = append(args, "--stage1-path="+ctx.stage1Path)
+	}
+	if ctx.prepareName != "" {
+		args = append(args, "--name="+ctx.prepareName)
+	}
+	if ctx.noOverlay {
+		args = append(args, "--no-overlay")
+	}
+	if ctx.quiet {
+		args = append(args, "--quiet")
+	}
+	envs = ""
+	err = nil
+	return
+}
 func (ctx RKTContext) rktInfoImageToCmd() (err error, args []string, envs string) {
 	if ctx.imageUUID == "" {
 		return errors.New("No imageUUID in args"), nil, ""
