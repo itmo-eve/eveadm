@@ -20,7 +20,7 @@ import (
 	"log"
 )
 
-// rktInfoCmd represents the info command
+// rktPrepareCmd represents the prepare command
 var rktPrepareCmd = &cobra.Command{
 	Use:   "prepare uuid",
 	Short: "Run shell command with arguments in 'prepare' action on 'rkt' mode",
