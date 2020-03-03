@@ -1,4 +1,4 @@
-package main
+package eveadm
 
 import (
 	"bytes"
@@ -36,7 +36,7 @@ func checkStringOmits(t *testing.T, got, expected string) {
 }
 
 func check(e error) {
-    if e != nil {
-        panic(e)
-    }
+	if e != nil {
+		panic(e)
+	}
 }
