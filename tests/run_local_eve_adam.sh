@@ -10,25 +10,30 @@ memory_to_use=4096
 config_files=(cfg.json cfg_run_rkt.json cfg_run_xen.json cfg_stop_rkt.json cfg_stop_xen.json)
 
 usage () {
- echo "Usage: $0 [-m memory_to_use] [-u eve_repo_url] [-t git_tag] [-r]"
+ echo "Usage: $0 [-m memory_to_use] [-a adam_repo_url[@git_tag]] [-e eve_repo_url[@git_tag]] [-r]"
  echo -e "-r\tflag for rebuild eve-pillar"
  exit
 }
 
-while getopts 'hrm:t:u:' c
+while getopts 'hrm:a:e:' c
 do
  case $c in
   m) memory_to_use=$OPTARG
      echo "Use with memory $memory_to_use" ;;
-  t) tag_to_use=$OPTARG
-     echo "Use with tag $tag_to_use" ;;
-  u) eve_repo=$OPTARG
-     echo "Use with repository $eve_repo" ;;
+  a) adam_repo=$(echo $OPTARG | cut -f 1 -d '@')
+     echo "Adam repository $adam_repo"
+     adam_tag=$(echo $OPTARG | cut -s -f 2 -d '@')
+     echo "Adam tag $adam_tag" ;;
+  e) eve_repo=$(echo $OPTARG | cut -f 1 -d '@')
+     echo "Eve repository $adam_repo"
+     eve_tag=$(echo $OPTARG | cut -s -f 2 -d '@')
+     echo "Eve tag $adam_tag" ;;
   r) rebuild=1 ;;
   h) usage ;;
   *) usage ;;
  esac
 done
+
 tmp_dir=$(mktemp -d -t eveadam-"$(date +%Y-%m-%d-%H-%M-%S)"-XXXXXXXXXX)
 unused_port=$(comm -23 <(seq 49152 49252 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
 ssh_port=$(comm -23 <(seq 49252 49352 | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1)
@@ -69,16 +74,19 @@ touch ~/.rnd
 cd "$tmp_dir" || exit 1
 git clone $eve_repo
 git clone $adam_repo
+
 echo ========================================
 echo "Generate keypair for ssh (no overwrite if exists)"
 echo ========================================
 ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N "" <<<n
+
 echo
 echo ========================================
 echo "Prepare and run ADAM"
 echo ========================================
 IP=$(hostname -I | cut -d' ' -f1)
 cd $adam_dir || exit 1
+[ "$adam_tag" ] && git checkout $adam_tag
 make build-docker
 mkdir -p run/adam
 mkdir -p run/config
@@ -102,7 +110,7 @@ echo "$IP" mydomain.com >../config/hosts
 echo mydomain.com:$unused_port >../config/server
 sudo chmod 644 ../config/*.pem
 cd "$adam_dir" || exit 1
-nohup docker run -v "$adam_dir"/run:/adam/run -p $unused_port:8080 lfedge/adam server --conf-dir ./run/config/adam >$tmp_dir/adam.log 2>&1 &
+nohup docker run -v "$adam_dir"/run:/adam/run -p $unused_port:8080 lfedge/adam server --conf-dir ./run/adam_cfg >$tmp_dir/adam.log 2>&1 &
 echo $! >../adam.pid
 echo ========================================
 echo "ADAM pid:"
@@ -117,11 +125,12 @@ until docker run -v "$adam_dir"/run:/adam/run lfedge/adam admin --server https:/
   ((counter++))
 done
 echo '*' >run/adam/onboard/$onboarduuid/onboard-serials.txt
+
 echo ========================================
 echo "Prepare and run EVE"
 echo ========================================
 cd $eve_dir || exit 1
-[ "$tag_to_use" ] && git checkout $tag_to_use
+[ "$eve_tag" ] && git checkout $eve_tag
 [ "$rebuild" ] && make eve-pillar
 sed -i "s/eth0,net=192\.168\.1\.0\/24,dhcpstart=192\.168\.1\.10/eth0,net=$subnet1_prefix\.0\/24,dhcpstart=$subnet1_prefix\.10/g" Makefile
 sed -i "s/eth1,net=192\.168\.2\.0\/24,dhcpstart=192\.168\.2\.10/eth1,net=$subnet2_prefix\.0\/24,dhcpstart=$subnet2_prefix\.10/g" Makefile
@@ -134,6 +143,7 @@ echo $! >../eve.pid
 echo ========================================
 echo "EVE pid:"
 cat ../eve.pid
+
 echo ========================================
 echo "Try to modify EVE config"
 echo ========================================
