@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/giggsoff/eveadm/cmd"
+	"github.com/itmo-eve/eveadm/cmd"
 	"github.com/spf13/cobra"
 )
 

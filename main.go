@@ -15,7 +15,7 @@ limitations under the License.
 */
 package eveadm
 
-import "github.com/giggsoff/eveadm/cmd"
+import "github.com/itmo-eve/eveadm/cmd"
 
 func main() {
 	cmd.Execute()

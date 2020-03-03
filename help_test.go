@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/giggsoff/eveadm/cmd"
+	"github.com/itmo-eve/eveadm/cmd"
 )
 
 var tests = map[string][]string{
