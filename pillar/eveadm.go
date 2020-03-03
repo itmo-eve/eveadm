@@ -1,4 +1,4 @@
-package pillar
+package eveadmpillar
 
 import "github.com/lf-edge/eve/pkg/pillar/pubsub"
 import "github.com/itmo-eve/eveadm/cmd"
