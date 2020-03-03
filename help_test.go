@@ -1,57 +1,54 @@
-package main
+package eveadm
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 
 	"github.com/itmo-eve/eveadm/cmd"
 )
 
-var tests = map[string][]string {
-/*
-*/
-	"tests/help": []string {"help"},
-        "tests/h": []string {"-h"},
-        "tests/help_rkt": []string {"help", "rkt"},
-        "tests/rkt-h": []string {"rkt", "-h"},
-        "tests/help_rkt_create": []string {"help", "rkt", "create"},
-        "tests/rkt_create-h": []string {"rkt", "create", "-h"},
-        "tests/help_rkt_delete": []string {"help", "rkt", "delete"},
-        "tests/rkt_delete-h": []string {"rkt", "delete", "-h"},
-        "tests/help_rkt_delete_gc": []string {"help", "rkt", "delete", "gc"},
-        "tests/rkt_delete_gc-h": []string {"rkt", "delete", "gc", "-h"},
-        "tests/help_rkt_info": []string {"help", "rkt", "info"},
-        "tests/rkt_info-h": []string {"rkt", "info", "-h"},
-        "tests/help_rkt_list": []string {"help", "rkt", "list"},
-        "tests/rkt_list-h": []string {"rkt", "list", "-h"},
-        "tests/help_rkt_start": []string {"help", "rkt", "start"},
-        "tests/rkt_start-h": []string {"rkt", "start", "-h"},
-        "tests/help_rkt_stop": []string {"help", "rkt", "stop"},
-        "tests/rkt_stop-h": []string {"rkt", "stop", "-h"},
-        "tests/help_rkt_update": []string {"help", "rkt", "update"},
-        "tests/rkt_update-h": []string {"rkt", "update", "-h"},
-        "tests/help_xen": []string {"help", "xen"},
-        "tests/xen-h": []string {"xen", "-h"},
-        "tests/help_xen_create": []string {"help", "xen", "create"},
-        "tests/xen_create-h": []string {"xen", "create", "-h"},
-        "tests/help_xen_delete": []string {"help", "xen", "delete"},
-        "tests/xen_delete-h": []string {"xen", "delete", "-h"},
-        "tests/help_xen_info": []string {"help", "xen", "info"},
-        "tests/xen_info-h": []string {"xen", "info", "-h"},
-        "tests/help_xen_list": []string {"help", "xen", "list"},
-        "tests/xen_list-h": []string {"xen", "list", "-h"},
-        "tests/help_xen_start": []string {"help", "xen", "start"},
-        "tests/xen_start-h": []string {"xen", "start", "-h"},
-        "tests/help_xen_stop": []string {"help", "xen", "stop"},
-        "tests/xen_stop-h": []string {"xen", "stop", "-h"},
-        "tests/help_xen_update": []string {"help", "xen", "update"},
-        "tests/xen_update-h": []string {"xen", "update", "-h"},
+var tests = map[string][]string{
+	/*
+	 */
+	"tests/help":            {"help"},
+	"tests/h":               {"-h"},
+	"tests/help_rkt":        {"help", "rkt"},
+	"tests/rkt-h":           {"rkt", "-h"},
+	"tests/help_rkt_create": {"help", "rkt", "create"},
+	"tests/rkt_create-h":    {"rkt", "create", "-h"},
+	"tests/help_rkt_delete": {"help", "rkt", "delete"},
+	"tests/rkt_delete-h":    {"rkt", "delete", "-h"},
+	"tests/help_rkt_info":   {"help", "rkt", "info"},
+	"tests/rkt_info-h":      {"rkt", "info", "-h"},
+	"tests/help_rkt_list":   {"help", "rkt", "list"},
+	"tests/rkt_list-h":      {"rkt", "list", "-h"},
+	"tests/help_rkt_start":  {"help", "rkt", "start"},
+	"tests/rkt_start-h":     {"rkt", "start", "-h"},
+	"tests/help_rkt_stop":   {"help", "rkt", "stop"},
+	"tests/rkt_stop-h":      {"rkt", "stop", "-h"},
+	"tests/help_rkt_update": {"help", "rkt", "update"},
+	"tests/rkt_update-h":    {"rkt", "update", "-h"},
+	"tests/help_xen":        {"help", "xen"},
+	"tests/xen-h":           {"xen", "-h"},
+	"tests/help_xen_create": {"help", "xen", "create"},
+	"tests/xen_create-h":    {"xen", "create", "-h"},
+	"tests/help_xen_delete": {"help", "xen", "delete"},
+	"tests/xen_delete-h":    {"xen", "delete", "-h"},
+	"tests/help_xen_info":   {"help", "xen", "info"},
+	"tests/xen_info-h":      {"xen", "info", "-h"},
+	"tests/help_xen_list":   {"help", "xen", "list"},
+	"tests/xen_list-h":      {"xen", "list", "-h"},
+	"tests/help_xen_start":  {"help", "xen", "start"},
+	"tests/xen_start-h":     {"xen", "start", "-h"},
+	"tests/help_xen_stop":   {"help", "xen", "stop"},
+	"tests/xen_stop-h":      {"xen", "stop", "-h"},
+	"tests/help_xen_update": {"help", "xen", "update"},
+	"tests/xen_update-h":    {"xen", "update", "-h"},
 }
 
-
-func TestHelpExecute (t *testing.T) {
+func TestHelpExecute(t *testing.T) {
 	for f, a := range tests {
 		name := strings.Join(a, " ")
 		fmt.Println(name)
@@ -59,7 +56,7 @@ func TestHelpExecute (t *testing.T) {
 			dat, err := ioutil.ReadFile(f)
 			check(err)
 			tst := string(dat)
-			
+
 			out, err := executeCommand(cmd.RootCmd, a...)
 			check(err)
 			res := strings.Compare(tst, out)

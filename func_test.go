@@ -1,9 +1,9 @@
-package main
+package eveadm
 
 import (
-//	"io/ioutil"
+	//	"io/ioutil"
 	"fmt"
-//	"strings"
+	//	"strings"
 	"testing"
 	"time"
 
@@ -34,7 +34,7 @@ func init() {
 	testCmd.PersistentFlags().StringP("env", "e", "", "Setting environment variables")
 }
 
-func TestFuncExecute (t *testing.T) {
+func TestFuncExecute(t *testing.T) {
 	var eout string
 
 	t.Run("correct execution", func(t *testing.T) {
@@ -63,15 +63,15 @@ func TestFuncExecute (t *testing.T) {
 		start := time.Now()
 		eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100")
 		elapsed := time.Since(start)
-		if elapsed < 100 * time.Second {
-			t.Errorf("Expected time of execution for 'sleep 100': \n %v\nGot:\n %v\n", 100 * time.Second, elapsed)
+		if elapsed < 100*time.Second {
+			t.Errorf("Expected time of execution for 'sleep 100': \n %v\nGot:\n %v\n", 100*time.Second, elapsed)
 		}
 
 		start = time.Now()
 		eout, _ = executeCommand(cmd.RootCmd, "test", "sleep", "100", "-t", "1")
 		elapsed = time.Since(start)
-		if elapsed > 100 * time.Second {
-			t.Errorf("Expected time of execution for 'sleep 100 -t 1': \n %v\nGot:\n %v\n", 1 * time.Minute, elapsed)
+		if elapsed > 100*time.Second {
+			t.Errorf("Expected time of execution for 'sleep 100 -t 1': \n %v\nGot:\n %v\n", 1*time.Minute, elapsed)
 		}
 	})
 }

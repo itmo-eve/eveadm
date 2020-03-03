@@ -1,4 +1,4 @@
-package main
+package eveadm
 
 import (
 	"io/ioutil"
